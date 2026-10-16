@@ -734,23 +734,25 @@ Commons 上多数图片是 CC BY / CC BY-SA 许可，**要求署名**。
 | 桌面版 | `lib/pages/home_page.dart` 首页第三个按钮 | `_randomNearby()` → 复用 `_randomFromAll()` |
 | 小程序版 | `miniprogram/pages/index/index.wxml` | `onRandomNearby()` → `randomUtil.pickNearbyDish()` |
 
-### 14.2 ⚠️ 当前的局限（重要，需要你知道）
+### 14.2 现在的实现（已接入真实定位）
 
-**「附近」目前没有真实含义。** 两端都没有位置数据，菜品数据里也没有
-「附近的店铺」这个概念，所以候选集合就是全部 50 道菜 ——
-这正是需求里写的「功能与所有价位随机一致」。
+《增加功能.docx》后续任务二要求：「附近美食随机下面一行小字删除，
+并且点击附近美食随机之后会获取用户位置信息，随机推荐用户附近美食。」
 
-代码里已经把这件事收敛成**一个单一的改动点**：
+| 项 | 说明 |
+| --- | --- |
+| 删除小字 | 桌面端 `_BigButton` 的 `subtitle` 改为可选，「附近美食随机」不再有副标题；小程序端同步删除 |
+| 获取位置 | `wx.getLocation`（`gcj02`）；`app.json` 已声明 `scope.userLocation` 与 `requiredPrivateInfos: ["getLocation"]` |
+| 附近数据 | **腾讯位置服务**周边搜索（`apis.map.qq.com/ws/place/v1/search`，`boundary=nearby(lat,lng,3000)`，按距离排序） |
+| 随机推荐 | 从返回的 POI 里随机挑一家；卡片显示**店名 / 距离 / 分类 / 地址** |
+| 后续动作 | 「换一家」重新定位再挑；「导航过去」用 `wx.openLocation` 打开地图 |
+| 失败兜底 | 拒绝授权 → 弹窗说明并可跳「去设置」；超时/系统未授权各有对应文案；key 未配置 → 明确提示且不发请求 |
 
-- 桌面版：`_randomNearby()` 这一个方法
-- 小程序版：`utils/random.js` 里的 `pickNearbyDish()` 一个函数
+**仍需配置（否则功能不可用）**：① 在 lbs.qq.com 申请 key 并填入 `miniprogram/utils/nearby.js` 的
+`CONFIG.key`；② 微信公众平台把 `https://apis.map.qq.com` 加入 request 合法域名；
+③ 后台开通「地理位置」接口。
 
-将来要接真实的「附近美食」，只要换掉候选来源（例如用
-[腾讯位置服务](https://lbs.qq.com/) 做定位 + 附近的餐饮 POI），**界面代码不用动**。
-
-微信小程序本身有 `wx.getLocation`，但用位置接口需要在 `app.json` 声明
-`requiredPrivateInfos`、在小程序后台开通，审核还会追问用途 ——
-**在没有真实附近数据之前，故意不去申请定位权限**，避免无谓的权限索取。
+---
 
 ### 14.3 验收
 
