@@ -59,6 +59,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// 附近美食随机（《增加功能.docx》第 4 条）。
+  ///
+  /// 需求原文：「首页增加一个附近美食随机按钮，功能与所有价位随机、分价位随机一致」——
+  /// 也就是交互与另外两个按钮相同：点一下随机推荐一道菜。
+  ///
+  /// ⚠️ 桌面版没有定位能力，菜品数据里也没有「附近店铺」的概念，
+  /// 所以候选集合目前就是全部菜品，直接复用 [_randomFromAll]。
+  /// 将来接入定位与附近店铺数据后，**只要改这里的候选来源**，界面代码不用动。
+  Future<void> _randomNearby() => _randomFromAll();
+
   /// 分价位随机：弹出档位列表 → 选一个档位 → 直接随机推荐该档位的一道菜
   Future<void> _randomFromTier() async {
     if (_busy) return;
@@ -166,6 +176,14 @@ class _HomePageState extends State<HomePage> {
                     subtitle: '先选 10 ~ 100 元档位，再随机一道',
                     filled: false,
                     onPressed: _busy ? null : _randomFromTier,
+                  ),
+                  const SizedBox(height: 16),
+                  _BigButton(
+                    icon: Icons.location_on_outlined,
+                    title: '附近美食随机',
+                    subtitle: '随机推荐一道（与所有价位随机一致）',
+                    filled: false,
+                    onPressed: _busy ? null : _randomNearby,
                   ),
 
                   if (_busy) ...[

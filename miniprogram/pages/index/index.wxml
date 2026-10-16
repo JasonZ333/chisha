@@ -10,6 +10,8 @@
     <view class="btn btn-outline">按价位随机</view>
   </picker>
 
+  <button class="btn btn-outline" bindtap="onRandomNearby">附近美食随机</button>
+
   <!-- 随机结果 -->
   <view class="card" wx:if="{{hasDish}}">
     <image class="dish-img" src="/images/dishes/{{dish.image}}" mode="aspectFill" />

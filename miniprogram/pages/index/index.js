@@ -9,6 +9,8 @@ Page({
     dish: null,
     tierLabel: '',
     hasDish: false,
+    // 「再随机一个」沿用的档位；null = 所有价位
+    rerollTier: null,
     // 点外卖：平台选择页
     showTakeout: false,
     platforms: [],
@@ -29,13 +31,21 @@ Page({
 
   /** 所有价位随机 */
   onRandomAny: function () {
+    this.setData({ rerollTier: null });
     this.showDish(randomUtil.pickAnyDish());
+  },
+
+  /** 附近美食随机（《增加功能.docx》第 4 条，与另外两个按钮行为一致） */
+  onRandomNearby: function () {
+    this.setData({ rerollTier: null });
+    this.showDish(randomUtil.pickNearbyDish());
   },
 
   /** 按价位随机（picker 选择档位后触发） */
   onPickTier: function (e) {
     var index = Number(e.detail.value);
     var level = this.data.tierLevels[index];
+    this.setData({ rerollTier: level });
     this.showDish(randomUtil.pickDishInTier(level));
     return level;
   },

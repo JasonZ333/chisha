@@ -36,8 +36,23 @@ function pickDishInTier(level, randomFn) {
   return pickOne(dishUtil.dishesInTier(level), randomFn);
 }
 
+/**
+ * 附近美食随机（《增加功能.docx》第 4 条）。
+ *
+ * 需求原文：「首页增加一个附近美食随机按钮，功能与所有价位随机、分价位随机一致」——
+ * 也就是交互与另外两个按钮相同：点一下随机出一道菜。
+ *
+ * ⚠️ 当前没有位置数据，菜品数据里也没有「附近店铺」的概念，
+ * 所以这里暂时等价于「所有价位随机」。将来接入定位与附近店铺数据后，
+ * **只需要改这个函数里的候选列表**，页面代码不用动。
+ */
+function pickNearbyDish(randomFn) {
+  return pickOne(dishUtil.visibleDishes(), randomFn);
+}
+
 module.exports = {
   pickOne: pickOne,
   pickAnyDish: pickAnyDish,
   pickDishInTier: pickDishInTier,
+  pickNearbyDish: pickNearbyDish,
 };
