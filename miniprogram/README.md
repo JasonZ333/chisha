@@ -4,12 +4,39 @@
 
 > Flutter **不能**编译成微信小程序（小程序用 WXML/WXSS/JS），所以这里是原生小程序项目。
 
-## 怎么打开
+## 怎么打开（已实测）
 
 1. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
 2. 「导入项目」→ 目录选 `D:\chisha\miniprogram`
-3. AppID 填你自己的小程序 AppID（先在[微信公众平台](https://mp.weixin.qq.com/)注册）
-   - 现在 `project.config.json` 里是 `touristappid`（游客模式），只能预览、不能上传
+3. AppID 这一栏**留空 / 选「测试号」**，不要填 `touristappid`
+4. 弹出「您信任此项目的作者吗？」→ 点**「信任并运行」**
+
+> ⚠️ **`project.config.json` 里不要写 `"appid": "touristappid"`。**
+> 本版工具（Stable 2.01.2510290）会报 `更改 AppID 失败 touristappid / Error: tourist appid`，
+> 模拟器起不来。**去掉 appid 字段**后工具会自动回落到**游客模式**，界面可以正常跑。
+> 正式上传前再填你自己的真实 AppID。
+
+### 实测运行结果（游客模式）
+
+| 检查项 | 结果 |
+| --- | --- |
+| 首页渲染 | ✅ 「吃啥」+ 导航栏主题色正确 |
+| 三个随机按钮 | ✅ 所有价位随机 / 按价位随机 / 附近美食随机 |
+| 点「所有价位随机」 | ✅ 出结果卡片（法式羊排 88 元 90 元档 菜品 + 真实照片） |
+| 点「点外卖」 | ✅ 弹出平台选择页，标题「去点「法式羊排」的外卖」 |
+| 平台降级提示 | ✅ 美团 / 饿了么 显示「需在 App 内搜索」；**京东无此提示**（已配 appId） |
+| 控制台报错 | 仅 1 条，来自 `index.js:107`（`wx.navigateToMiniProgram`）——**游客模式不允许跳转其他小程序**，这是我们 `fail` 回调的**正确兜底**，不是代码缺陷 |
+
+> **跳转能否真正成功，必须在真实 AppID + 真机上验证** —— 游客模式下微信会直接拒绝。
+
+### 命令行（可选）
+
+工具自带 `cli.bat`，可以打开项目、跑自动化（`cli.bat open --project D:\chisha\miniprogram`）。
+
+> ⚠️ **必须用 C 盘那个路径调用**：`C:\Program Files (x86)\Tencent\微信web开发者工具\cli.bat`。
+> 工具的 profile 哈希是按**程序路径**算的；如果从 `D:\WeixinDevTools\cli.bat` 调用，
+> 它会去找另一个 profile 下的 `.cli` 而报 `Please ensure that the IDE has been properly installed`。
+> （本项目把程序目录用 junction 挪到了 D 盘，所以存在这个差异。）
 
 ## 与桌面版的差异
 
