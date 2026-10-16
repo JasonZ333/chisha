@@ -36,33 +36,49 @@ test('平台 key 唯一，且都能被 findPlatform 找到', function () {
   });
 });
 
-test('listPlatforms 返回平台名与"能否直接跳转"标记', function () {
+test('三个平台都已配置 AppID，且格式合法、互不相同', function () {
+  var appIds = takeout.PLATFORMS.map(function (p) {
+    return p.appId;
+  });
+  appIds.forEach(function (id, i) {
+    assert.match(
+      id,
+      /^wx[0-9a-f]{16}$/,
+      takeout.PLATFORMS[i].name + ' 的 appId 格式不对：' + id
+    );
+  });
+  assert.strictEqual(new Set(appIds).size, 3, '三个平台的 appId 不能重复');
+});
+
+test('AppID 与需求方提供的值一致', function () {
+  assert.strictEqual(takeout.findPlatform('meituan').appId, 'wx2c348cf579062e56');
+  assert.strictEqual(takeout.findPlatform('jd').appId, 'wx91d27dbf599dff74');
+  assert.strictEqual(takeout.findPlatform('eleme').appId, 'wxece3a9a4c82f58c9');
+});
+
+test('三个平台都能直接跳转（不再降级）', function () {
+  ['meituan', 'jd', 'eleme'].forEach(function (key) {
+    var p = takeout.findPlatform(key);
+    assert.strictEqual(takeout.decideAction(p), 'jump', p.name + ' 应当可跳转');
+    assert.ok(takeout.buildJumpOptions(p, '炒饭'), p.name + ' 应当能构造出跳转参数');
+  });
+});
+
+test('listPlatforms 三个平台都标记为可跳转', function () {
   var list = takeout.listPlatforms();
   assert.strictEqual(list.length, 3);
   list.forEach(function (item) {
-    assert.ok(item.key && item.name, '缺少 key 或 name');
-    assert.strictEqual(typeof item.canJump, 'boolean');
+    assert.strictEqual(item.canJump, true, item.name + ' 应当标记为可跳转');
   });
-  // 京东已知 appId，应当可跳转
-  var jd = list.filter(function (i) {
-    return i.key === 'jd';
-  })[0];
-  assert.strictEqual(jd.canJump, true, '京东已配置 appId，应可跳转');
 });
 
-test('京东使用已知的固定 AppID', function () {
-  assert.strictEqual(takeout.findPlatform('jd').appId, 'wx91d27dbf599dff74');
-});
-
-test('未配置 appId 的平台降级为"只复制菜名"，而不是报错', function () {
-  var meituan = takeout.findPlatform('meituan');
-  var eleme = takeout.findPlatform('eleme');
-  assert.strictEqual(meituan.appId, '', '前提：美团暂未配置 appId');
-  assert.strictEqual(eleme.appId, '', '前提：饿了么暂未配置 appId');
-
-  assert.strictEqual(takeout.decideAction(meituan), 'copy');
-  assert.strictEqual(takeout.decideAction(eleme), 'copy');
-  assert.strictEqual(takeout.decideAction(takeout.findPlatform('jd')), 'jump');
+// ── 降级逻辑仍必须有效：用"没配 appId"的合成平台来测 ──────────
+// 真实平台现在都配好了，但 appId 将来可能被清空（换平台/临时停用），
+// 所以这条兜底路径必须继续有测试守着。
+test('未配置 appId 的平台降级为「只复制菜名」，而不是报错', function () {
+  var notConfigured = { key: 'x', name: '某平台', appId: '', path: '' };
+  assert.strictEqual(takeout.decideAction(notConfigured), 'copy');
+  assert.strictEqual(takeout.buildJumpOptions(notConfigured, '炒饭'), null);
 });
 
 test('decideAction 对不存在的平台返回 unknown（不抛异常）', function () {
@@ -79,11 +95,6 @@ test('buildJumpOptions 组装出 wx.navigateToMiniProgram 需要的参数', func
   assert.deepStrictEqual(options.extraData, { dishName: '宫保鸡丁' });
   // path 没配置时不应带上，否则会打开一个不存在的页面
   assert.strictEqual(options.path, undefined);
-});
-
-test('buildJumpOptions 对未配置 appId 的平台返回 null（调用方据此降级）', function () {
-  assert.strictEqual(takeout.buildJumpOptions(takeout.findPlatform('meituan'), '炒饭'), null);
-  assert.strictEqual(takeout.buildJumpOptions(null, '炒饭'), null);
 });
 
 test('配置了 path 的平台会带上 path', function () {

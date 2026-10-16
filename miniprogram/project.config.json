@@ -1,5 +1,6 @@
 {
-  "description": "微信开发者工具项目配置。AppID 请填你自己的小程序 AppID（或在工具里用测试号）。",
+  "description": "微信开发者工具项目配置。当前用需求方的测试号 AppID；正式上架前换成正式小程序的 AppID。",
+  "appid": "wxbb7638eb68464449",
   "projectname": "chisha-miniprogram",
   "compileType": "miniprogram",
   "libVersion": "3.5.0",
@@ -12,11 +13,34 @@
     "minified": false,
     "minifyWXML": false,
     "ignoreDevUnusedFiles": false,
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
   "packOptions": {
     "ignore": [
-      { "type": "folder", "value": "tests" }
-    ]
-  }
+      {
+        "value": "tests",
+        "type": "folder"
+      }
+    ],
+    "include": []
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }

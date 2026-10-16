@@ -58,3 +58,7 @@ test/failures/
 # 图片核对用的拼图（体积大，可由 tools/make_contact_sheet.py 随时重新生成）
 docs/核对表_*.png
 
+
+# 微信开发者工具的个人本地配置（每位开发者不同，官方模板也忽略它）
+miniprogram/project.private.config.json
+

@@ -27,20 +27,22 @@ var PLATFORMS = [
   {
     key: 'meituan',
     name: '美团',
-    appId: '',
+    // 美团外卖小程序 AppID（需求方提供）
+    appId: 'wx2c348cf579062e56',
     path: '',
   },
   {
     key: 'jd',
     name: '京东',
-    // 京东小程序的固定 AppID
+    // 京东购物小程序 AppID
     appId: 'wx91d27dbf599dff74',
     path: '',
   },
   {
     key: 'eleme',
     name: '饿了么',
-    appId: '',
+    // 饿了么小程序 AppID（需求方提供）
+    appId: 'wxece3a9a4c82f58c9',
     path: '',
   },
 ];
