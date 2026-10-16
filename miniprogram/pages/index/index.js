@@ -188,6 +188,11 @@ Page({
     });
   },
 
+  /** 关闭结果弹窗（点遮罩或「关闭」按钮都会走到这里） */
+  onCloseDish: function () {
+    this.setData({ hasDish: false, showTakeout: false });
+  },
+
   // ── 点外卖（《增加功能.docx》第 3 条）──────────────────────
   // 流程：复制菜名 → 弹出平台选择页 → 点击后跳转到对应平台的微信小程序
   onTakeout: function () {

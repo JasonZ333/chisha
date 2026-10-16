@@ -124,6 +124,40 @@ test('桌面端与小程序都不含跳转吃播入口（第 1 条的要求）',
   assert.strictEqual(wxss.indexOf('吃播'), -1, '小程序样式不应出现「吃播」');
 });
 
+test('随机结果以屏幕居中的弹窗呈现（对齐桌面端的 AlertDialog）', function () {
+  // 桌面端：结果用 showDialog + AlertDialog，是屏幕正中的对话框
+  var dialogDart = fs.readFileSync(
+    path.join(MP, '..', 'lib', 'widgets', 'dish_result_dialog.dart'),
+    'utf8'
+  );
+  assert.ok(
+    dialogDart.indexOf('AlertDialog') !== -1,
+    '桌面端结果应是 AlertDialog（屏幕正中的对话框）'
+  );
+
+  // 小程序：结果包在 .modal-wrap 里，而它是 flex 双向居中
+  assert.ok(/class="modal-wrap"/.test(wxml), '结果应包在 .modal-wrap 里');
+  assert.ok(/class="modal-card"/.test(wxml), '结果卡片应使用 .modal-card');
+  assert.ok(/\.modal-wrap\s*\{[^}]*display:\s*flex/.test(wxss), '.modal-wrap 应是 flex 容器');
+  assert.ok(/\.modal-wrap\s*\{[^}]*align-items:\s*center/.test(wxss), '.modal-wrap 应垂直居中');
+  assert.ok(
+    /\.modal-wrap\s*\{[^}]*justify-content:\s*center/.test(wxss),
+    '.modal-wrap 应水平居中'
+  );
+
+  // 不能再顺着页面流排列（旧写法正是这一条导致看起来贴在下方）
+  assert.strictEqual(
+    /class="card"\s+wx:if="\{\{hasDish\}\}"/.test(wxml),
+    false,
+    '结果卡片不应再作为普通流式卡片渲染'
+  );
+
+  // 遮罩可点关闭，弹窗底部也有「关闭」
+  assert.ok(/class="modal-mask"[^>]*bindtap="onCloseDish"/.test(wxml), '遮罩应可点击关闭');
+  assert.ok(/onCloseDish:\s*function/.test(indexJs), '缺少 onCloseDish 处理函数');
+  assert.ok(wxml.indexOf('>关闭</view>') !== -1, '弹窗里缺少「关闭」按钮');
+});
+
 test('「附近美食随机」下方的小字已在两端删除（任务二）', function () {
   var gone = '随机推荐一道（与所有价位随机一致）';
   assert.strictEqual(

@@ -115,18 +115,56 @@
   margin-left: 12rpx;
 }
 
-/* ── 随机结果卡片 ─────────────────────────────── */
-.card {
-  margin-top: 8rpx;
-  background: #FFFFFF;
-  border-radius: 28rpx;
-  overflow: hidden;
-  box-shadow: 0 8rpx 32rpx rgba(139, 74, 43, 0.10);
+/* ── 居中结果弹窗 ───────────────────────────────
+   桌面端的结果是屏幕正中的 AlertDialog（showDialog + Center），
+   所以小程序这边也用「整屏遮罩 + 垂直水平都居中」的弹窗，
+   而不是把卡片顺着页面流往下排。 */
+.modal-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  z-index: 10;
 }
 
-.dish-img {
+.modal-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.modal-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  height: 420rpx;
+  max-width: 620rpx;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.28);
+}
+
+.modal-close {
+  margin-top: 18rpx;
+  padding: 14rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #8A7A70;
+}
+
+/* ── 菜品结果 ─────────────────────────────────── */
+.dish-img {
+  display: block;
+  width: 100%;
+  height: 360rpx;
   background: #F3E7DC;
 }
 
@@ -193,11 +231,7 @@
   color: #FFFFFF;
 }
 
-/* ── 附近美食结果卡片（任务二）──────────────────── */
-.nearby-card {
-  margin-top: 28rpx;
-}
-
+/* ── 附近美食结果 ─────────────────────────────── */
 .nearby-head {
   display: flex;
   align-items: center;
@@ -220,15 +254,6 @@
   color: #8B4A2B;
 }
 
-.nearby-close {
-  width: 56rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-  text-align: center;
-  color: #B9A79C;
-  font-size: 30rpx;
-}
-
 .nearby-body {
   padding: 32rpx;
 }
@@ -246,7 +271,7 @@
   line-height: 1.6;
 }
 
-/* ── 点外卖：底部选择页 ────────────────────────── */
+/* ── 点外卖：底部选择页（在结果弹窗之上）────────── */
 .mask {
   position: fixed;
   left: 0;
@@ -254,6 +279,7 @@
   top: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.45);
+  z-index: 20;
 }
 
 .sheet {
@@ -261,6 +287,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 21;
   background: #FFFFFF;
   border-radius: 28rpx 28rpx 0 0;
   padding-bottom: env(safe-area-inset-bottom);
