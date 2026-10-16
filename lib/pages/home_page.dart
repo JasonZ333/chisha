@@ -181,7 +181,6 @@ class _HomePageState extends State<HomePage> {
                   _BigButton(
                     icon: Icons.location_on_outlined,
                     title: '附近美食随机',
-                    subtitle: '随机推荐一道（与所有价位随机一致）',
                     filled: false,
                     onPressed: _busy ? null : _randomNearby,
                   ),
@@ -204,14 +203,16 @@ class _BigButton extends StatelessWidget {
   const _BigButton({
     required this.icon,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.filled,
     required this.onPressed,
   });
 
   final IconData icon;
   final String title;
-  final String subtitle;
+
+  /// 副标题；为 null 时不渲染（《增加功能.docx》任务二要求去掉「附近美食随机」那行小字）
+  final String? subtitle;
   final bool filled;
   final VoidCallback? onPressed;
 
@@ -233,8 +234,10 @@ class _BigButton extends StatelessWidget {
                   style: theme.textTheme.titleLarge
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
-                Text(subtitle, style: theme.textTheme.bodySmall),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(subtitle!, style: theme.textTheme.bodySmall),
+                ],
               ],
             ),
           ),

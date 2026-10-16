@@ -39,7 +39,6 @@
     <image class="card-icon" src="/images/icons/icon_location.png" mode="aspectFit" />
     <view class="card-text">
       <view class="card-title">附近美食随机</view>
-      <view class="card-sub">随机推荐一道（与所有价位随机一致）</view>
     </view>
     <image class="card-arrow" src="/images/icons/icon_chevron.png" mode="aspectFit" />
   </view>
@@ -57,6 +56,28 @@
       <view class="actions">
         <button class="btn btn-ghost" bindtap="onReroll">再随机一个</button>
         <button class="btn btn-takeout" bindtap="onTakeout">点外卖</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 附近美食结果（任务二：定位 + 腾讯位置服务周边搜索） -->
+  <view class="card nearby-card" wx:if="{{nearbyBusy || nearby}}">
+    <view class="nearby-head">
+      <image class="nearby-head-icon" src="/images/icons/icon_location.png" mode="aspectFit" />
+      <text class="nearby-head-text">{{nearbyBusy ? nearbyStatus : '附近美食'}}</text>
+      <view class="nearby-close" wx:if="{{!nearbyBusy}}" bindtap="onNearbyClose">✕</view>
+    </view>
+
+    <view class="nearby-body" wx:if="{{nearby}}">
+      <view class="nearby-title">{{nearby.title}}</view>
+      <view class="dish-meta">
+        <text class="tag" wx:if="{{nearbyDistance}}">{{nearbyDistance}}</text>
+        <text class="tag">{{nearby.category}}</text>
+      </view>
+      <view class="nearby-address" wx:if="{{nearby.address}}">{{nearby.address}}</view>
+      <view class="actions">
+        <button class="btn btn-ghost" bindtap="onNearbyReroll">换一家</button>
+        <button class="btn btn-takeout" bindtap="onNearbyNavigate">导航过去</button>
       </view>
     </view>
   </view>

@@ -28,7 +28,6 @@ var SHARED_TEXTS = [
   '分价位随机',
   '先选 10 ~ 100 元档位，再随机一道',
   '附近美食随机',
-  '随机推荐一道（与所有价位随机一致）',
 ];
 
 test('桌面端源码存在（一致性测试的参照）', function () {
@@ -123,4 +122,29 @@ test('所有被引用的图标文件都真实存在', function () {
 test('桌面端与小程序都不含跳转吃播入口（第 1 条的要求）', function () {
   assert.strictEqual(wxml.indexOf('吃播'), -1, '小程序首页不应出现「吃播」');
   assert.strictEqual(wxss.indexOf('吃播'), -1, '小程序样式不应出现「吃播」');
+});
+
+test('「附近美食随机」下方的小字已在两端删除（任务二）', function () {
+  var gone = '随机推荐一道（与所有价位随机一致）';
+  assert.strictEqual(
+    wxml.indexOf(gone),
+    -1,
+    '小程序首页仍保留着「' + gone + '」'
+  );
+  assert.strictEqual(
+    dart.indexOf(gone),
+    -1,
+    '桌面端 home_page.dart 仍保留着「' + gone + '」，任务二要求两端都删'
+  );
+  // 附近美食卡片只剩主标题，不该再有副标题节点
+  // 只截取该卡片自身（从 bindtap 标记往后 400 字符即覆盖整张卡片）
+  var at = wxml.indexOf('bindtap="onRandomNearby"');
+  assert.ok(at !== -1, '找不到「附近美食随机」卡片的绑定');
+  var block = wxml.slice(at, at + 400);
+  assert.strictEqual(
+    block.indexOf('card-sub'),
+    -1,
+    '「附近美食随机」卡片里仍有副标题（card-sub）节点：' + block.replace(/\s+/g, ' ')
+  );
+  assert.ok(block.indexOf('card-title') !== -1, '「附近美食随机」卡片应保留主标题');
 });

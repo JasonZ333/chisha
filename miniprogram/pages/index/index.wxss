@@ -193,6 +193,59 @@
   color: #FFFFFF;
 }
 
+/* ── 附近美食结果卡片（任务二）──────────────────── */
+.nearby-card {
+  margin-top: 28rpx;
+}
+
+.nearby-head {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 32rpx;
+  border-bottom: 2rpx solid #F6EEE7;
+  background: #FBF3EC;
+}
+
+.nearby-head-icon {
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+}
+
+.nearby-head-text {
+  flex: 1;
+  margin-left: 14rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #8B4A2B;
+}
+
+.nearby-close {
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  color: #B9A79C;
+  font-size: 30rpx;
+}
+
+.nearby-body {
+  padding: 32rpx;
+}
+
+.nearby-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.nearby-address {
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  color: #9C8A80;
+  line-height: 1.6;
+}
+
 /* ── 点外卖：底部选择页 ────────────────────────── */
 .mask {
   position: fixed;

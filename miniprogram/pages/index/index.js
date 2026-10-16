@@ -1,6 +1,7 @@
 var randomUtil = require('../../utils/random.js');
 var dishUtil = require('../../utils/dishes.js');
 var takeout = require('../../utils/takeout.js');
+var nearby = require('../../utils/nearby.js');
 
 Page({
   data: {
@@ -17,6 +18,11 @@ Page({
     showTakeout: false,
     platforms: [],
     copied: false,
+    // 附近美食（任务二）：定位 + 腾讯位置服务周边搜索
+    nearbyBusy: false,
+    nearbyStatus: '',
+    nearby: null,
+    nearbyDistance: '',
   },
 
   onLoad: function () {
@@ -43,10 +49,111 @@ Page({
     this.showDish(randomUtil.pickAnyDish());
   },
 
-  /** 附近美食随机（《增加功能.docx》第 4 条，与另外两个按钮行为一致） */
+  /**
+   * 附近美食随机（《增加功能.docx》任务二）。
+   *
+   * 流程：获取用户位置（wx.getLocation，gcj02）→ 用腾讯位置服务做周边搜索
+   * → 从结果里随机挑一家 → 卡片展示店名/距离/地址，可点击导航。
+   */
   onRandomNearby: function () {
-    this.setData({ rerollTier: null });
-    this.showDish(randomUtil.pickNearbyDish());
+    if (this.data.nearbyBusy) return;
+    var that = this;
+
+    // 还没配置位置服务的 key：给个明确交代，不发请求
+    if (!nearby.isConfigured()) {
+      wx.showModal({
+        title: '附近美食暂不可用',
+        content: '还没有配置位置服务的 key，暂时无法推荐附近美食。',
+        showCancel: false,
+        confirmText: '知道了',
+      });
+      return;
+    }
+
+    this.setData({
+      nearbyBusy: true,
+      nearbyStatus: '正在获取位置…',
+      nearby: null,
+      nearbyDistance: '',
+    });
+
+    wx.getLocation({
+      type: 'gcj02',
+      success: function (loc) {
+        that.setData({ nearbyStatus: '正在搜索附近美食…' });
+        wx.request({
+          url: nearby.buildSearchUrl(loc.latitude, loc.longitude),
+          method: 'GET',
+          success: function (res) {
+            var parsed = nearby.parsePlaces(res.data);
+            if (!parsed.ok) {
+              that.setData({ nearbyBusy: false, nearbyStatus: '' });
+              wx.showToast({ title: parsed.error, icon: 'none', duration: 3000 });
+              return;
+            }
+            that.showNearby(nearby.pickPlace(parsed.places));
+          },
+          fail: function () {
+            that.setData({ nearbyBusy: false, nearbyStatus: '' });
+            wx.showToast({
+              title: '搜索附近美食失败，请检查网络',
+              icon: 'none',
+              duration: 3000,
+            });
+          },
+        });
+      },
+      fail: function (err) {
+        that.setData({ nearbyBusy: false, nearbyStatus: '' });
+        wx.showModal({
+          title: '无法获取位置',
+          content: nearby.locationErrorMessage(err),
+          confirmText: '去设置',
+          cancelText: '算了',
+          success: function (m) {
+            if (m.confirm) wx.openSetting({});
+          },
+        });
+      },
+    });
+  },
+
+  /** 展示随机挑中的那家店 */
+  showNearby: function (place) {
+    if (!place) {
+      this.setData({ nearbyBusy: false, nearbyStatus: '' });
+      wx.showToast({ title: '附近没有搜到餐饮店铺', icon: 'none' });
+      return;
+    }
+    this.setData({
+      nearbyBusy: false,
+      nearbyStatus: '',
+      nearby: place,
+      nearbyDistance: nearby.formatDistance(place.distance),
+    });
+  },
+
+  /** 附近结果：换一家（重新定位并再随机挑一次） */
+  onNearbyReroll: function () {
+    this.onRandomNearby();
+  },
+
+  /** 打开地图导航到这家店 */
+  onNearbyNavigate: function () {
+    var p = this.data.nearby;
+    if (!p || typeof p.lat !== 'number' || typeof p.lng !== 'number') return;
+    wx.openLocation({
+      latitude: p.lat,
+      longitude: p.lng,
+      name: p.title,
+      address: p.address,
+      scale: 16,
+    });
+  },
+
+  /** 关掉附近结果卡片 */
+  onNearbyClose: function () {
+    this.setData({ nearby: null, nearbyDistance: '' });
   },
 
   /** 按价位随机（picker 选择档位后触发） */
