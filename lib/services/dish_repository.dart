@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show AssetManifest, rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -28,6 +29,20 @@ class DishRepository {
   /// 图片还没有生成时使用的统一占位图
   static const String placeholderAsset =
       'assets/placeholder/food_placeholder.png';
+
+  /// 随软件打包的免费图库图片目录（《增加功能.docx》第 2 条）
+  static const String bundledImagesDir = 'assets/dishes';
+
+  /// 支持的图片扩展名，按此优先级匹配同名文件。
+  ///
+  /// 数据里的 `imageFile` 写的是 `.png`，但从免费图库下载到的往往就是 `.jpg`，
+  /// 所以按"同名前缀 + 这些扩展名"依次查找，而不是死磕一个文件名。
+  static const List<String> imageExtensions = <String>[
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.webp',
+  ];
 
   static const String dishesFileName = 'dishes.json';
   static const String imagesDirName = 'images';
@@ -215,18 +230,92 @@ class DishRepository {
         .toList();
   }
 
-  /// 解析一道菜的图片：优先用图片文件夹里的真实图片，找不到就用统一占位图
+  /// 解析一道菜的图片，优先级：
+  ///
+  /// 1. **用户自己放的图**：`<数据目录>/images/`（可随时替换、最高优先）
+  /// 2. **随软件打包的图库图片**：`assets/dishes/`（《增加功能.docx》第 2 条）
+  /// 3. **统一占位图**
+  ///
+  /// 匹配时按 [imageExtensions] 依次尝试同名前缀，所以数据里的 `.png`
+  /// 也能命中的实际是 `.jpg` 的图库图片。
   Future<ImageProvider> imageFor(Dish dish) async {
+    final stem = p.basenameWithoutExtension(dish.imageFile);
+
+    // 1) 用户自定义图片
     try {
       final dir = await imagesDirectory();
-      final file = File(p.join(dir.path, dish.imageFile));
-      if (file.existsSync()) {
-        return FileImage(file);
+      for (final ext in imageExtensions) {
+        final file = File(p.join(dir.path, '$stem$ext'));
+        if (file.existsSync()) {
+          return FileImage(file);
+        }
       }
     } catch (e) {
-      debugPrint('读取菜品图片失败，改用占位图：$e');
+      debugPrint('读取用户菜品图片失败，继续尝试打包图片：$e');
     }
+
+    // 2) 随软件打包的免费图库图片
+    final bundled = await _bundledAssetKeys();
+    for (final ext in imageExtensions) {
+      final assetPath = '$bundledImagesDir/$stem$ext';
+      if (bundled.contains(assetPath)) {
+        return AssetImage(assetPath);
+      }
+    }
+
+    // 3) 兜底
     return const AssetImage(placeholderAsset);
+  }
+
+  Set<String>? _bundledKeysCache;
+
+  /// 读取资源清单里"随包图片"的路径集合（只读一次）
+  Future<Set<String>> _bundledAssetKeys() async {
+    if (_bundledKeysCache != null) return _bundledKeysCache!;
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      _bundledKeysCache = manifest.listAssets().toSet();
+    } catch (e) {
+      debugPrint('读取资源清单失败，跳过打包图片：$e');
+      _bundledKeysCache = const <String>{};
+    }
+    return _bundledKeysCache!;
+  }
+
+  /// 单元测试用：清空打包图片清单缓存
+  @visibleForTesting
+  void resetBundledImageCache() {
+    _bundledKeysCache = null;
+  }
+
+  /// 已经配好图片的菜品数（用户图片 或 随包图库图片，占位图不计）
+  Future<int> imagesReadyCount() async {
+    final all = await loadDishes();
+    var count = 0;
+    for (final dish in all) {
+      final provider = await imageFor(dish);
+      if (provider is! AssetImage) {
+        count++;
+      } else if (provider.assetName != placeholderAsset) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /// 随软件打包、且确实能匹配到某道菜的图库图片数量
+  Future<int> bundledImageCount() async {
+    final all = await loadDishes();
+    final bundled = await _bundledAssetKeys();
+    var count = 0;
+    for (final dish in all) {
+      final stem = p.basenameWithoutExtension(dish.imageFile);
+      final hit = imageExtensions.any(
+        (ext) => bundled.contains('$bundledImagesDir/$stem$ext'),
+      );
+      if (hit) count++;
+    }
+    return count;
   }
 
   /// 图片文件夹里已经有多少张真实图片

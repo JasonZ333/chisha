@@ -50,3 +50,7 @@ app.*.map.json
 # 派生文件：由 tools/extract_docx.py 从需求文档生成，含私人对话记录，不入库
 tools/extracted.txt
 
+
+# golden 测试失败时生成的对比图，不入库
+test/failures/
+

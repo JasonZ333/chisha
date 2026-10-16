@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../services/dish_repository.dart';
 import '../services/video_launcher.dart';
@@ -72,7 +73,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final repo = DishRepository.instance;
     final dataDir = await repo.dataDirectory();
     final imagesDir = await repo.imagesDirectory();
-    final count = await repo.availableImageCount();
+    final userCount = await repo.availableImageCount();
+    final bundledCount = await repo.bundledImageCount();
     final total = (await repo.loadDishes()).length;
     if (!mounted) return;
 
@@ -95,7 +97,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(height: 16),
-                Text('菜品图片文件夹（已放入 $count / $total 张）：'),
+                Text('随软件打包的图库图片：$bundledCount / $total 张'),
+                const SizedBox(height: 8),
+                Text('你自己放进图片文件夹的：$userCount 张（优先级更高，会覆盖打包图片）'),
                 const SizedBox(height: 4),
                 SelectableText(
                   imagesDir.path,
@@ -103,8 +107,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '把 AI 生成好的图片按「文件名对照表」里的文件名放进图片文件夹，'
-                  '重启软件后会自动替换统一占位图。',
+                  '菜品图片来自免费图库 Wikimedia Commons，'
+                  '作者与许可见「设置 → 图片来源与署名」。\n'
+                  '若想把某道菜换成自己的图，按文件名放进上面的图片文件夹即可，'
+                  '重启软件后生效。',
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.outline),
                 ),
@@ -128,6 +134,48 @@ class _SettingsPageState extends State<SettingsPage> {
               icon: const Icon(Icons.image_outlined, size: 18),
               label: const Text('打开图片文件夹'),
             ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('关闭'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 图片来源与署名。
+  ///
+  /// 《增加功能.docx》第 2 条改为使用免费图库图片；这些图片多为
+  /// CC BY-SA 等许可，**要求署名**，所以必须让用户能在软件内看到。
+  Future<void> _showImageCredits() async {
+    String text;
+    try {
+      text = await rootBundle.loadString('assets/credits.md');
+    } catch (e) {
+      text = '未能读取署名文件（assets/credits.md）。\n\n$e';
+    }
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          title: const Text('图片来源与署名'),
+          content: SizedBox(
+            width: 520,
+            height: 420,
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                child: SelectableText(
+                  text,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ),
+          actions: [
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('关闭'),
@@ -197,6 +245,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text('查看菜品数据文件和图片文件夹的路径'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _showDataLocation,
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('图片来源与署名'),
+                subtitle: const Text('菜品图片来自免费图库，此处列出作者与许可'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _showImageCredits,
               ),
               const Divider(height: 1),
               ListTile(

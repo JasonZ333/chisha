@@ -31,3 +31,7 @@ flutter:
 
   assets:
     - assets/placeholder/
+    # 免费图库下载的菜品图片（《增加功能.docx》第 2 条）
+    - assets/dishes/
+    # 图片来源与署名；CC BY-SA 等许可要求署名，随包提供以便应用内展示
+    - assets/credits.md
