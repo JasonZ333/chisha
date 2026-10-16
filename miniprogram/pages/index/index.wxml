@@ -1,16 +1,48 @@
 <view class="page">
-  <view class="hero">
-    <view class="hero-title">吃啥</view>
-    <view class="hero-sub">不知道吃啥？点一下</view>
+  <!-- 顶部：标题 + 设置（对齐 Windows 端 AppBar）-->
+  <view class="topbar">
+    <text class="topbar-title">吃啥</text>
+    <view class="topbar-gear" hover-class="tap" bindtap="onOpenSettings">
+      <image class="icon-gear" src="/images/icons/icon_settings.png" mode="aspectFit" />
+    </view>
   </view>
 
-  <button class="btn btn-primary" bindtap="onRandomAny">所有价位随机</button>
+  <!-- 首屏：图标 + 大标题 + 副标题 -->
+  <view class="hero">
+    <image class="hero-icon" src="/images/icons/icon_bowl.png" mode="aspectFit" />
+    <view class="hero-title">今天吃什么？</view>
+    <view class="hero-sub">别纠结了，交给命运</view>
+  </view>
+
+  <!-- 三个卡片式按钮：与 lib/pages/home_page.dart 的 _BigButton 结构一致 -->
+  <view class="card-btn card-btn-filled" hover-class="card-tap" bindtap="onRandomAny">
+    <image class="card-icon" src="/images/icons/icon_shuffle_white.png" mode="aspectFit" />
+    <view class="card-text">
+      <view class="card-title on-filled">所有价位随机</view>
+      <view class="card-sub on-filled">从 {{tierCount}} 个档位的全部菜品里挑一道</view>
+    </view>
+    <image class="card-arrow" src="/images/icons/icon_chevron_white.png" mode="aspectFit" />
+  </view>
 
   <picker mode="selector" range="{{tierLabels}}" bindchange="onPickTier">
-    <view class="btn btn-outline">按价位随机</view>
+    <view class="card-btn" hover-class="card-tap">
+      <image class="card-icon" src="/images/icons/icon_tune.png" mode="aspectFit" />
+      <view class="card-text">
+        <view class="card-title">分价位随机</view>
+        <view class="card-sub">先选 10 ~ 100 元档位，再随机一道</view>
+      </view>
+      <image class="card-arrow" src="/images/icons/icon_chevron.png" mode="aspectFit" />
+    </view>
   </picker>
 
-  <button class="btn btn-outline" bindtap="onRandomNearby">附近美食随机</button>
+  <view class="card-btn" hover-class="card-tap" bindtap="onRandomNearby">
+    <image class="card-icon" src="/images/icons/icon_location.png" mode="aspectFit" />
+    <view class="card-text">
+      <view class="card-title">附近美食随机</view>
+      <view class="card-sub">随机推荐一道（与所有价位随机一致）</view>
+    </view>
+    <image class="card-arrow" src="/images/icons/icon_chevron.png" mode="aspectFit" />
+  </view>
 
   <!-- 随机结果 -->
   <view class="card" wx:if="{{hasDish}}">

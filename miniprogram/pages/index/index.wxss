@@ -1,6 +1,123 @@
-/* 随机结果卡片 */
+/* 首页样式：与 lib/pages/home_page.dart 的桌面端布局对齐 */
+
+/* ── 顶部：标题 + 设置 ────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0 0;
+}
+
+.topbar-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.topbar-gear {
+  width: 76rpx;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.icon-gear {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.tap {
+  background: rgba(139, 74, 43, 0.10);
+}
+
+/* ── 首屏 ─────────────────────────────────────── */
+.hero {
+  padding: 56rpx 0 64rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-icon {
+  width: 144rpx;
+  height: 144rpx;
+}
+
+.hero-title {
+  margin-top: 24rpx;
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.hero-sub {
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  color: #9C8A80;
+}
+
+/* ── 卡片式按钮（对应 _BigButton）───────────────── */
+.card-btn {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28rpx;
+  padding: 34rpx 36rpx;
+  border-radius: 36rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #E6D5C8;
+}
+
+.card-btn-filled {
+  background: #8B4A2B;
+  border-color: #8B4A2B;
+  box-shadow: 0 8rpx 28rpx rgba(139, 74, 43, 0.22);
+}
+
+.card-tap {
+  opacity: 0.82;
+}
+
+.card-icon {
+  width: 60rpx;
+  height: 60rpx;
+  flex-shrink: 0;
+}
+
+.card-text {
+  flex: 1;
+  min-width: 0;
+  margin-left: 26rpx;
+}
+
+.card-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.card-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #9C8A80;
+}
+
+/* 实心卡片上的文字反色 */
+.on-filled {
+  color: #FFF8F2;
+}
+
+.card-arrow {
+  width: 34rpx;
+  height: 34rpx;
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
+/* ── 随机结果卡片 ─────────────────────────────── */
 .card {
-  margin-top: 16rpx;
+  margin-top: 8rpx;
   background: #FFFFFF;
   border-radius: 28rpx;
   overflow: hidden;
@@ -49,6 +166,26 @@
   display: flex;
 }
 
+.btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-ghost {
+  flex: 1;
+  margin: 0 12rpx 0 0;
+  background: #F3E7DC;
+  color: #6B4A36;
+}
+
 .btn-takeout {
   flex: 1;
   margin: 0 0 0 12rpx;
@@ -56,7 +193,7 @@
   color: #FFFFFF;
 }
 
-/* ── 点外卖：底部选择页 ─────────────────── */
+/* ── 点外卖：底部选择页 ────────────────────────── */
 .mask {
   position: fixed;
   left: 0;

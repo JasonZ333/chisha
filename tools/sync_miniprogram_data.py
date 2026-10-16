@@ -4,6 +4,7 @@
 生成：
     miniprogram/data/dishes.js   50 道菜（来自 lib/data/builtin_dishes.dart）
     miniprogram/data/tiers.js    10 个价格档位（来自 lib/data/price_tiers.dart）
+    miniprogram/data/credits.js  图片署名（来自 docs/图片来源.md）
 
 图片字段统一写成 <文件名主干>.jpg —— 小程序里打包的就是图库下载下来的 JPEG。
 
@@ -22,8 +23,36 @@ IMAGE_DIR = os.path.join(BASE, "assets", "dishes")
 OUT_DIR = os.path.join(BASE, "miniprogram", "data")
 OUT_DISHES = os.path.join(OUT_DIR, "dishes.js")
 OUT_TIERS = os.path.join(OUT_DIR, "tiers.js")
+OUT_CREDITS = os.path.join(OUT_DIR, "credits.js")
+CREDITS_MD = os.path.join(BASE, "docs", "图片来源.md")
 
 HEADER = "// 本文件由 tools/sync_miniprogram_data.py 自动生成，请勿手工编辑。\n"
+
+
+def parse_credits():
+    """解析 docs/图片来源.md → 署名条目（供小程序内展示）"""
+    if not os.path.exists(CREDITS_MD):
+        return []
+    row = re.compile(
+        r"^\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$"
+    )
+    out = []
+    for line in open(CREDITS_MD, encoding="utf-8"):
+        m = row.match(line.strip())
+        if not m:
+            continue
+        dish_name, file_name, author, license_name, source = m.groups()
+        out.append(
+            {
+                "dish": dish_name,
+                "file": file_name,
+                "author": author or "（未标注作者）",
+                "license": license_name or "（未标注许可）",
+                "source": source or "—",
+                "kind": "user" if "用户提供" in source else "commons",
+            }
+        )
+    return out
 
 
 def parse_dishes():
@@ -105,8 +134,34 @@ def main():
     tlines.append("  ],\n};\n")
     open(OUT_TIERS, "w", encoding="utf-8", newline="\n").write("".join(tlines))
 
+    # 署名数据：供小程序内「设置 → 图片来源与署名」展示（CC BY-SA 要求署名）
+    credits = parse_credits()
+    clines = [HEADER, "// 来源：docs/图片来源.md\n", "module.exports = [\n"]
+    for c in credits:
+        def esc(s):
+            return str(s).replace("\\", "\\\\").replace("'", "\\'")
+
+        clines.append(
+            "  { dish: '%s', file: '%s', author: '%s', license: '%s', source: '%s', kind: '%s' },\n"
+            % (
+                esc(c["dish"]),
+                esc(c["file"]),
+                esc(c["author"]),
+                esc(c["license"]),
+                esc(c["source"]),
+                c["kind"],
+            )
+        )
+    clines.append("];\n")
+    open(OUT_CREDITS, "w", encoding="utf-8", newline="\n").write("".join(clines))
+
+    user_count = sum(1 for c in credits if c["kind"] == "user")
+
     print(f"菜品 {len(dishes)} 道 → {OUT_DISHES}")
     print(f"档位 {len(tiers)} 个（上限 {max_price} 元）→ {OUT_TIERS}")
+    print(
+        f"署名 {len(credits)} 条（其中用户提供 {user_count} 条）→ {OUT_CREDITS}"
+    )
     if missing:
         print(f"\n⚠️ 以下 {len(missing)} 道菜缺少打包图片，小程序里会显示空白：")
         for stem in missing:

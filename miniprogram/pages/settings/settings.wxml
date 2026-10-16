@@ -1,0 +1,52 @@
+<view class="page">
+  <view class="group">
+    <view class="item" hover-class="tap" bindtap="onShowAbout">
+      <view class="item-main">
+        <view class="item-title">关于本软件</view>
+        <view class="item-sub">版本信息与功能说明</view>
+      </view>
+      <image class="item-arrow" src="/images/icons/icon_chevron.png" mode="aspectFit" />
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="item" hover-class="tap" bindtap="onShowCredits">
+      <view class="item-main">
+        <view class="item-title">图片来源与署名</view>
+        <view class="item-sub">共 {{creditTotal}} 张，其中 {{userCount}} 张由需求方提供</view>
+      </view>
+      <image class="item-arrow" src="/images/icons/icon_chevron.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <!-- 关于本软件 -->
+  <view class="mask" wx:if="{{dialog}}" bindtap="onCloseDialog"></view>
+  <view class="dialog" wx:if="{{dialog === 'about'}}">
+    <view class="dialog-title">关于本软件</view>
+    <view class="dialog-body">
+      <view class="about-name">吃啥 {{version}}</view>
+      <view class="about-line">不知道吃啥的时候，点一下就好。</view>
+      <view class="about-line">内置 {{dishCount}} 道示例菜品，{{tierCount}} 个价格档位（10 ~ 100 元）。</view>
+      <view class="about-line">微信小程序版不含视频入口；参考桌面版的功能范围实现。</view>
+    </view>
+    <view class="dialog-btn" bindtap="onCloseDialog">关闭</view>
+  </view>
+
+  <!-- 图片来源与署名 -->
+  <view class="dialog dialog-tall" wx:if="{{dialog === 'credits'}}">
+    <view class="dialog-title">图片来源与署名</view>
+    <view class="dialog-sub">
+      菜品图片来自免费图库 Wikimedia Commons（CC BY / CC BY-SA 许可要求署名），
+      其余 {{userCount}} 张由需求方提供。共 {{creditTotal}} 张。
+    </view>
+    <scroll-view class="credit-list" scroll-y>
+      <view class="credit-item" wx:for="{{credits}}" wx:key="file">
+        <view class="credit-dish">{{item.dish}}</view>
+        <view class="credit-meta">{{item.author}} · {{item.license}}</view>
+        <view class="credit-file">{{item.file}}</view>
+        <view class="credit-url" wx:if="{{item.sourceUrl}}">{{item.sourceUrl}}</view>
+      </view>
+    </scroll-view>
+    <view class="dialog-btn" bindtap="onCloseDialog">关闭</view>
+  </view>
+</view>

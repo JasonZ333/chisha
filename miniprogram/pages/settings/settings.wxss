@@ -1,0 +1,162 @@
+/* 设置页样式：列表项结构对齐桌面端的 SettingsPage */
+page {
+  background: #FBF3EC;
+}
+
+.page {
+  padding: 32rpx 28rpx 60rpx;
+}
+
+.group {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 28rpx rgba(139, 74, 43, 0.08);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 34rpx 36rpx;
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2B2320;
+}
+
+.item-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #9C8A80;
+}
+
+.item-arrow {
+  width: 34rpx;
+  height: 34rpx;
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
+.divider {
+  height: 2rpx;
+  margin-left: 36rpx;
+  background: #F1E7DF;
+}
+
+.tap {
+  background: rgba(139, 74, 43, 0.06);
+}
+
+/* ── 弹窗 ─────────────────────────────────────── */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.dialog {
+  position: fixed;
+  left: 48rpx;
+  right: 48rpx;
+  top: 22%;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 40rpx 36rpx 24rpx;
+  box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.25);
+}
+
+.dialog-tall {
+  top: 12%;
+  bottom: 12%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.dialog-sub {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #9C8A80;
+  line-height: 1.6;
+}
+
+.dialog-body {
+  margin-top: 24rpx;
+}
+
+.about-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #8B4A2B;
+  margin-bottom: 16rpx;
+}
+
+.about-line {
+  font-size: 26rpx;
+  color: #6B5A50;
+  line-height: 1.8;
+}
+
+.dialog-btn {
+  margin-top: 28rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  background: #8B4A2B;
+  color: #FFF8F2;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+/* ── 署名列表 ─────────────────────────────────── */
+.credit-list {
+  flex: 1;
+  min-height: 300rpx;
+  margin-top: 20rpx;
+}
+
+.credit-item {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #F6EEE7;
+}
+
+.credit-dish {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2B2320;
+}
+
+.credit-meta {
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: #8B4A2B;
+}
+
+.credit-file {
+  margin-top: 4rpx;
+  font-size: 21rpx;
+  color: #B9A79C;
+}
+
+.credit-url {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: #C7B8AE;
+  word-break: break-all;
+}
