@@ -80,6 +80,11 @@ DSH 的文件沙箱会限制**任何位于工作区（`C:\Users\<你的用户名
 点击「看吃播」→ 用**系统默认浏览器**打开抖音搜索页，关键词为 `菜名 + 吃播`。
 软件本身**不播放视频、不爬取视频、不保存任何具体视频链接**。
 
+> 📌 **视频入口由平台开关控制**：`lib/config/platform_features.dart` 里的 `PlatformFeatures.videoEntry`。
+> 桌面版默认开启；**小程序版按规划砍掉**（见 PRD「小程序版（规划中）」）。
+> 可编译出无视频入口的版本：`flutter build windows --dart-define=CHISHA_VIDEO_ENTRY=false`，
+> 对应测试见 `test/platform_features_test.dart`。
+
 **设置页**三项：关于本软件、数据保存位置、恢复默认示例数据。
 
 **第一版不做**：用户添加/修改/删除菜品、辣度甜度卡路里香菜等偏好设置、

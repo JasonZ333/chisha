@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../config/platform_features.dart';
 import '../data/price_tiers.dart';
 import '../models/dish.dart';
 import '../services/dish_repository.dart';
@@ -167,18 +168,22 @@ class _DishResultDialogState extends State<_DishResultDialog> {
                     ),
                     const SizedBox(height: 16),
 
-                    // ── 视频入口 ─────────────────────────
-                    _VideoEntryCard(
-                      dish: _dish,
-                      onPressed: _openVideo,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '不在软件内播放，点击后用系统默认浏览器打开抖音搜索页',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.outline,
+                    // ── 视频入口（小程序版砍掉，见 PlatformFeatures）──
+                    // 《增加功能.docx》第 1 条：小程序版不做跳转吃播，
+                    // 所以这里由平台开关控制，而不是写死在界面里。
+                    if (PlatformFeatures.videoEntry) ...[
+                      _VideoEntryCard(
+                        dish: _dish,
+                        onPressed: _openVideo,
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '不在软件内播放，点击后用系统默认浏览器打开抖音搜索页',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
