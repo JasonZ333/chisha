@@ -1,0 +1,22 @@
+{
+  "description": "微信开发者工具项目配置。appid 用「游客模式」，正式开发时改成你自己的小程序 AppID。",
+  "appid": "touristappid",
+  "projectname": "chisha-miniprogram",
+  "compileType": "miniprogram",
+  "libVersion": "3.5.0",
+  "miniprogramRoot": "./",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "postcss": true,
+    "ignoreDevUnusedFiles": false,
+    "ignoreUploadUnusedFiles": true
+  },
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "tests" }
+    ]
+  }
+}

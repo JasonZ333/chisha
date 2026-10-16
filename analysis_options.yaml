@@ -17,6 +17,8 @@ analyzer:
     - windows/**
     # tools/ 下是命令行诊断脚本（用 print 输出结果），不是应用代码
     - tools/**
+    # miniprogram/ 是独立的微信小程序项目（WXML/JS/WXSS），用 Node 测试
+    - miniprogram/**
 
 linter:
   # The lint rules applied to this project can be customized in the

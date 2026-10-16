@@ -1,0 +1,47 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">吃啥</view>
+    <view class="hero-sub">不知道吃啥？点一下</view>
+  </view>
+
+  <button class="btn btn-primary" bindtap="onRandomAny">所有价位随机</button>
+
+  <picker mode="selector" range="{{tierLabels}}" bindchange="onPickTier">
+    <view class="btn btn-outline">按价位随机</view>
+  </picker>
+
+  <!-- 随机结果 -->
+  <view class="card" wx:if="{{hasDish}}">
+    <image class="dish-img" src="/images/dishes/{{dish.image}}" mode="aspectFill" />
+    <view class="dish-body">
+      <view class="dish-name">{{dish.name}}</view>
+      <view class="dish-meta">
+        <text class="price">{{dish.price}} 元</text>
+        <text class="tag" wx:if="{{tierLabel}}">{{tierLabel}}</text>
+        <text class="tag">{{dish.category}}</text>
+      </view>
+      <view class="actions">
+        <button class="btn btn-ghost" bindtap="onReroll">再随机一个</button>
+        <button class="btn btn-takeout" bindtap="onTakeout">点外卖</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 点外卖：平台选择页 -->
+  <view class="mask" wx:if="{{showTakeout}}" bindtap="onTakeoutCancel"></view>
+  <view class="sheet" wx:if="{{showTakeout}}">
+    <view class="sheet-title">去点「{{dish.name}}」的外卖</view>
+    <view class="sheet-note">{{copied ? '菜名已复制，选好平台直接粘贴搜索' : '复制失败，请手动记下菜名'}}</view>
+    <view
+      class="sheet-item"
+      wx:for="{{platforms}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onTakeoutPick"
+    >
+      <text class="sheet-item-name">{{item.name}}</text>
+      <text class="sheet-item-tag" wx:if="{{!item.canJump}}">需在 App 内搜索</text>
+    </view>
+    <view class="sheet-cancel" bindtap="onTakeoutCancel">取消</view>
+  </view>
+</view>

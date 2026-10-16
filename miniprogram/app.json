@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#8B4A2B",
+    "navigationBarTitleText": "吃啥",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FBF3EC",
+    "backgroundTextStyle": "light"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

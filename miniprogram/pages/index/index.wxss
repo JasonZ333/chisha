@@ -1,0 +1,120 @@
+/* 随机结果卡片 */
+.card {
+  margin-top: 16rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(139, 74, 43, 0.10);
+}
+
+.dish-img {
+  width: 100%;
+  height: 420rpx;
+  background: #F3E7DC;
+}
+
+.dish-body {
+  padding: 32rpx;
+}
+
+.dish-name {
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.dish-meta {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.price {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #8B4A2B;
+  margin-right: 16rpx;
+}
+
+.tag {
+  margin-right: 12rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 24rpx;
+  background: #F7E9DE;
+  color: #8B4A2B;
+  font-size: 24rpx;
+}
+
+.actions {
+  margin-top: 32rpx;
+  display: flex;
+}
+
+.btn-takeout {
+  flex: 1;
+  margin: 0 0 0 12rpx;
+  background: #E8A33D;
+  color: #FFFFFF;
+}
+
+/* ── 点外卖：底部选择页 ─────────────────── */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  border-radius: 28rpx 28rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sheet-title {
+  padding: 36rpx 32rpx 8rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2B2320;
+}
+
+.sheet-note {
+  padding: 0 32rpx 24rpx;
+  font-size: 24rpx;
+  color: #9C8A80;
+}
+
+.sheet-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 108rpx;
+  border-top: 2rpx solid #F1E7DF;
+  font-size: 32rpx;
+  color: #2B2320;
+}
+
+.sheet-item-name {
+  font-weight: 600;
+}
+
+.sheet-item-tag {
+  margin-left: 16rpx;
+  font-size: 22rpx;
+  color: #B9A79C;
+}
+
+.sheet-cancel {
+  margin-top: 16rpx;
+  height: 108rpx;
+  line-height: 108rpx;
+  text-align: center;
+  border-top: 16rpx solid #F7F1EB;
+  font-size: 32rpx;
+  color: #8A7A70;
+}

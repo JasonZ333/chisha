@@ -13,16 +13,20 @@
 
 ```
 D:\chisha\
-├── lib\            应用源码（11 个 Dart 文件）
-├── test\           测试 + goldens\ 界面截图
+├── lib\            桌面版应用源码（Dart）
+├── test\           桌面版测试 + goldens\ 界面截图
 ├── windows\ android\ ios\   平台工程
-├── assets\placeholder\      统一占位图
-├── docs\AI绘图提示词.md      50 条提示词 + 文件名对照表
-├── tools\          构建与运维脚本
+├── assets\         占位图 + 免费图库菜品图片（dishes\，50 张）
+├── miniprogram\    ★ 微信小程序版（独立原生小程序，见其中的 README.md）
+├── docs\           图片来源与署名、AI 绘图提示词（备用方案）
+├── tools\          构建、图片下载、两端数据同步脚本
 ├── build\          构建产物（Release 版 exe 在这里）
 ├── PRD.md          产品需求文档
 └── README.md       本文件
 ```
+
+> 小程序版与桌面版是**两套独立代码**（Flutter 编译不出小程序），
+> 但菜品与档位数据由 `tools/sync_miniprogram_data.py` 从 Dart 源码生成，两端永远一致。
 
 ---
 
