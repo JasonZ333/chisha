@@ -132,7 +132,7 @@ def search(query):
                 "title": page.get("title", ""),
                 "thumb": info.get("thumburl") or info.get("url"),
                 "page": info.get("descriptionurl", ""),
-                "artist": field("Artist") or "（未标注作者）",
+                "artist": clean_artist(field("Artist")),
                 "license": field("LicenseShortName") or "（未标注许可）",
                 "query": query,
             }
@@ -158,45 +158,81 @@ def download(url):
 
 
 def load_existing_credits():
-    """解析已有署名文件 → {文件名: 条目}，保证增量运行不丢已有记录。"""
+    """解析已有署名文件 → {文件名: 条目}，保证增量运行不丢已有记录。
+
+    最后一列「来源」是自由文本：既可以是 `[Commons](url)`，
+    也可以是用户替换图片时的说明（例如「用户提供」）。
+    """
     result = {}
     if not os.path.exists(CREDITS_DOC):
         return result
     row = re.compile(
         r"^\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*"
-        r"\|\s*\[Commons\]\(([^)]+)\)\s*\|"
+        r"\|\s*([^|]*?)\s*\|\s*$"
     )
     for line in open(CREDITS_DOC, encoding="utf-8"):
         m = row.match(line.strip())
         if m:
             result[m.group(2)] = {
                 "dish_name": m.group(1),
-                "artist": m.group(3),
-                "license": m.group(4),
-                "page": m.group(5),
+                "artist": clean_artist(m.group(3)),
+                "license": clean_cell(m.group(4)),
+                "source": clean_cell(m.group(5)),
             }
     return result
+
+
+def clean_cell(value):
+    """清理会破坏 Markdown 表格的内容：换行、竖线。
+
+    Commons 的 Artist 字段里有时带换行（例如「Kolforn (Kolforn)\\n」），
+    直接写进表格会把这一行截断，导致下次解析时整条记录丢失。
+    """
+    text = re.sub(r"\s+", " ", str(value or ""))
+    return text.replace("|", "/").strip()
+
+
+def clean_artist(value):
+    """Commons 的 Artist 字段有时把整段许可条款也塞进来，这里截断，只留作者名。"""
+    text = clean_cell(value)
+    for marker in (
+        "This file is licensed",
+        "I'd appreciate",
+        "You are free",
+        "Under the following conditions",
+        "Creative Commons",
+        "https://creativecommons.org",
+    ):
+        idx = text.find(marker)
+        if idx > 0:
+            text = text[:idx].strip()
+            break
+    return text[:80].strip() or "（未标注作者）"
 
 
 def write_credits(entries):
     lines = [
         "# 菜品图片来源与署名",
         "",
-        "本文件列出 `assets/dishes/` 下每张图片的来源、作者与许可，",
-        "用于满足 Wikimedia Commons 上 CC BY / CC BY-SA 等许可的署名要求。",
+        "本文件列出 `assets/dishes/` 下每张图片的来源、作者与许可。",
+        "来自 Wikimedia Commons 的图片按各自标注的许可使用（CC BY / CC BY-SA 等要求署名）；",
+        "由需求方自行提供并替换的图片，来源列写明「用户提供」。",
         "",
-        "| 菜品 | 文件名 | 作者 | 许可 | 原始页面 |",
+        "| 菜品 | 文件名 | 作者 | 许可 | 来源 |",
         "| --- | --- | --- | --- | --- |",
     ]
     for e in entries:
         lines.append(
-            f"| {e['dish_name']} | `{e['file']}` | {e['artist']} | {e['license']} "
-            f"| [Commons]({e['page']}) |"
+            f"| {clean_cell(e['dish_name'])} | `{e['file']}` | {clean_artist(e['artist'])} "
+            f"| {clean_cell(e['license'])} | {clean_cell(e.get('source')) or '—'} |"
         )
+    total = len(entries)
+    commons = sum(1 for e in entries if "commons.wikimedia.org" in (e.get("source") or ""))
     lines += [
         "",
-        f"共 {len(entries)} 张图片，全部来自 [Wikimedia Commons](https://commons.wikimedia.org/)，",
-        "各自按其标注的许可使用。若某张图片的许可要求署名，请保留本文件。",
+        f"共 {total} 张图片，其中 {commons} 张来自 [Wikimedia Commons](https://commons.wikimedia.org/)，"
+        f"{total - commons} 张由需求方提供。",
+        "若某张图片的许可要求署名，请保留本文件。",
         "",
     ]
     text = "\n".join(lines)
@@ -242,7 +278,7 @@ def main():
                         "file": file_name,
                         "artist": picked["artist"],
                         "license": picked["license"],
-                        "page": picked["page"],
+                        "source": f"[Commons]({picked['page']})",
                     }
                 )
                 print("      已有图片，补上署名记录")
@@ -274,7 +310,7 @@ def main():
                     "file": file_name,
                     "artist": picked["artist"],
                     "license": picked["license"],
-                    "page": picked["page"],
+                    "source": f"[Commons]({picked['page']})",
                 }
             )
             downloaded += 1

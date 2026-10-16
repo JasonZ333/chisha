@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>吃啥 · 菜品图片与菜名核对</title>
+<style>
+  :root { --line: #E6D5C8; --brown: #8B4A2B; --bg: #FBF3EC; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 28px 60px; background: var(--bg);
+         font-family: "Microsoft YaHei", system-ui, sans-serif; color: #2B2320; }
+  h1 { font-size: 26px; margin: 0 0 6px; color: var(--brown); }
+  .hint { color: #7A6A60; font-size: 14px; line-height: 1.8; margin-bottom: 16px; }
+  .bar { position: sticky; top: 0; z-index: 9; background: rgba(251,243,236,.96);
+          padding: 12px 0; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .bar button { font-size: 14px; padding: 7px 16px; border-radius: 18px;
+                 border: 1px solid var(--line); background: #fff; color: var(--brown);
+                 cursor: pointer; margin-right: 10px; }
+  .bar button.on { background: var(--brown); color: #fff; border-color: var(--brown); }
+  .bar .count { font-size: 14px; color: #7A6A60; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .card { background: #fff; border-radius: 14px; overflow: hidden;
+           box-shadow: 0 3px 14px rgba(139,74,43,.10); border: 2px solid transparent; }
+  .card.focus { border-color: #E8A33D; }
+  .card img { display: block; width: 100%; height: 200px; object-fit: cover; background: #F3E7DC; }
+  .meta { padding: 12px 14px 14px; }
+  .row1 { display: flex; align-items: center; gap: 8px; }
+  .name { font-size: 22px; font-weight: 700; }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 10px;
+            background: #FDF0DA; color: #A9660E; border: 1px solid #F0D8AC; }
+  .file { font-family: Consolas, monospace; font-size: 12px; color: #8A7A70; margin: 4px 0 8px; }
+  .tags span { display: inline-block; font-size: 12px; padding: 2px 9px; margin-right: 6px;
+                border-radius: 10px; background: #F7E9DE; color: var(--brown); }
+  .source { font-size: 11px; color: #9C8A80; margin-top: 8px; line-height: 1.6; }
+  .source a { color: #9C8A80; }
+  .done { opacity: .35; filter: grayscale(1); }
+  .legend { font-size: 13px; color: #7A6A60; margin: 10px 0 0; }
+</style>
+</head>
+<body>
+  <h1>菜品图片与菜名核对</h1>
+  <div class="hint">
+    共 <b>50</b> 道菜。请逐张确认「图片内容」与「菜名」是否相符。<br />
+    图片目录：<code>assets/dishes/</code>　菜名来源：<code>lib/data/builtin_dishes.dart</code>
+  </div>
+  <div class="bar">
+    <button id="focusBtn">只看重点核对（22）</button>
+    <button id="doneBtn">标为已核对</button>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="legend">
+    ⚠️ <b>重点核对</b>：这些菜名在 Wikimedia Commons 上检索不到中文结果，
+    是用<b>英文别名</b>搜出来的（例如「海鲜大咖 → Seafood platter」），图文不符的可能性相对更高。
+  </div>
+  <div class="grid">
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_01_chayedan.jpg" alt="茶叶蛋" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">茶叶蛋</span></div>
+        <div class="file">dish_01_chayedan.jpg</div>
+        <div class="tags">
+          <span>3 元</span>
+          <span>10 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:HK_Sai_Ying_Pun_Des_Voeux_Road_West_Tea_Eggs_Snack_Shop.JPG" target="_blank">Commons</a> · Dromafoobeno · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_02_doujiangyoutiao.jpg" alt="豆浆油条" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">豆浆油条</span></div>
+        <div class="file">dish_02_doujiangyoutiao.jpg</div>
+        <div class="tags">
+          <span>6 元</span>
+          <span>10 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:%E5%BA%86%E4%B8%B0%E5%8C%85%E5%AD%90%E9%93%BA%E7%BE%8A%E5%9D%8A%E5%BA%97%E8%B7%AF%E5%BA%97_-_%E6%97%A9%E9%A4%90_-_2025-10-24.jpg" target="_blank">Commons</a> · 瑞丽江的河水 · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_03_xianroubaozi.jpg" alt="鲜肉包子" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">鲜肉包子</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_03_xianroubaozi.jpg</div>
+        <div class="tags">
+          <span>5 元</span>
+          <span>10 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Bao_con_cochinita_pibil.jpg" target="_blank">Commons</a> · Francesc Fort · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_04_yangchunmian.jpg" alt="阳春面" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">阳春面</span></div>
+        <div class="file">dish_04_yangchunmian.jpg</div>
+        <div class="tags">
+          <span>8 元</span>
+          <span>10 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:202308_Pickled_Mustard_Green_Noodle_with_Braised_Dapai_and_Fried_Tofu_Toppings.jpg" target="_blank">Commons</a> · MNXANL · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_05_danchaofan.jpg" alt="蛋炒饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">蛋炒饭</span></div>
+        <div class="file">dish_05_danchaofan.jpg</div>
+        <div class="tags">
+          <span>10 元</span>
+          <span>10 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:%22Egg_Fried_Rice%22.jpg" target="_blank">Commons</a> · Thamizhpparithi Maari · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_06_chongqingxiaomian.jpg" alt="重庆小面" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">重庆小面</span></div>
+        <div class="file">dish_06_chongqingxiaomian.jpg</div>
+        <div class="tags">
+          <span>14 元</span>
+          <span>20 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:ChongQing_Noodles,_D_Noodles,_Paris_001.jpg" target="_blank">Commons</a> · Guilhem Vellut from Paris, France · CC BY 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_07_suanlafen.jpg" alt="酸辣粉" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">酸辣粉</span></div>
+        <div class="file">dish_07_suanlafen.jpg</div>
+        <div class="tags">
+          <span>12 元</span>
+          <span>20 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:HK_STT_%E7%9F%B3%E5%A1%98%E5%92%80_Shek_Tong_Tsui_%E5%B1%B1%E9%81%93%E5%A4%A9%E6%A9%8B%E5%85%AC%E5%9C%92_Hill_Road_shop_%E5%8F%AE%E5%8F%AE%E9%85%B8%E8%BE%A3%E7%B2%89_Restaurant_May_2024_R12S.jpg" target="_blank">Commons</a> · Tommgos Lauoz · CC0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_08_jianbingguozi.jpg" alt="煎饼果子" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">煎饼果子</span></div>
+        <div class="file">dish_08_jianbingguozi.jpg</div>
+        <div class="tags">
+          <span>11 元</span>
+          <span>20 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:201909_%E7%85%8E%E9%A5%BC%E6%9E%9C%E5%AD%90.jpg" target="_blank">Commons</a> · WFan · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_09_xiaolongbao.jpg" alt="小笼包" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">小笼包</span></div>
+        <div class="file">dish_09_xiaolongbao.jpg</div>
+        <div class="tags">
+          <span>18 元</span>
+          <span>20 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Fried_xiaolongbao_and_dumplings_with_eggs.jpg" target="_blank">Commons</a> · Peachyeung316 · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_10_lanzhoulamian.jpg" alt="兰州拉面" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">兰州拉面</span></div>
+        <div class="file">dish_10_lanzhoulamian.jpg</div>
+        <div class="tags">
+          <span>16 元</span>
+          <span>20 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Lamian_Toshomen_Val%C3%A8ncia.jpg" target="_blank">Commons</a> · Francesc Fort · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_11_fanqiejidan.jpg" alt="番茄鸡蛋盖饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">番茄鸡蛋盖饭</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_11_fanqiejidan.jpg</div>
+        <div class="tags">
+          <span>22 元</span>
+          <span>30 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Cooking_with_a_wok_on_an_outdoor_stove_5.jpg" target="_blank">Commons</a> · Mx. Granger · CC0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_12_qingjiaorousi.jpg" alt="青椒肉丝盖饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">青椒肉丝盖饭</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_12_qingjiaorousi.jpg</div>
+        <div class="tags">
+          <span>25 元</span>
+          <span>30 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Fish-flavoured_shredded_pork_at_Meizhou_Dongpo_Restaurant_Shangdi_(20190808185406" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_13_huangmenjimifan.jpg" alt="黄焖鸡米饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">黄焖鸡米饭</span></div>
+        <div class="file">dish_13_huangmenjimifan.jpg</div>
+        <div class="tags">
+          <span>28 元</span>
+          <span>30 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Braised_chicken.jpg" target="_blank">Commons</a> · ZZArch · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_14_malatang.jpg" alt="麻辣烫" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">麻辣烫</span></div>
+        <div class="file">dish_14_malatang.jpg</div>
+        <div class="tags">
+          <span>26 元</span>
+          <span>30 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Ma_La_Tang_Malatang_Chinese_hot_soup_noodle_Shinjuku_Tokyo_%E9%BA%BB%E8%BE%A3%E7%83%AB.jpg" target="_blank">Commons</a> · ウィキ太郎 ( Wiki Taro ) · Public domain</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_15_shaxianbanmian.jpg" alt="沙县拌面扁肉" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">沙县拌面扁肉</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_15_shaxianbanmian.jpg</div>
+        <div class="tags">
+          <span>21 元</span>
+          <span>30 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Deep_Fried_Wonton_and_Wonton_Noodle-_Wu_Cai_Ji_-_20131228.jpg" target="_blank">Commons</a> · DragonSamYU · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_16_hongshaoniuroumian.jpg" alt="红烧牛肉面" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">红烧牛肉面</span></div>
+        <div class="file">dish_16_hongshaoniuroumian.jpg</div>
+        <div class="tags">
+          <span>32 元</span>
+          <span>40 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:%E7%BA%A2%E7%83%A7%E7%89%9B%E8%82%89%E9%9D%A2%EF%BC%882025%E5%B9%B46%E6%9C%8818%E6%97%A5%EF%BC%89.jpg" target="_blank">Commons</a> · 茅野ふたば · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_17_huiguorou.jpg" alt="回锅肉盖饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">回锅肉盖饭</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_17_huiguorou.jpg</div>
+        <div class="tags">
+          <span>35 元</span>
+          <span>40 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Twice-cooked_Pork_%E5%9B%9E%E9%94%85%E8%82%89_(1648213963" target="_blank">Commons</a> · Alpha from Melbourne, Australia · CC BY-SA 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_18_zhujiaofan.jpg" alt="隆江猪脚饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">隆江猪脚饭</span></div>
+        <div class="file">dish_18_zhujiaofan.jpg</div>
+        <div class="tags">
+          <span>38 元</span>
+          <span>40 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Axiangsao_Longjiang_Zhujiaofan_at_Dongba_Wanda_Plaza_5F_(20260613123511" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_19_galijipai.jpg" alt="咖喱鸡排饭" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">咖喱鸡排饭</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_19_galijipai.jpg</div>
+        <div class="tags">
+          <span>34 元</span>
+          <span>40 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Awa-odori_Chicken_Katsu_Curry_01.jpg" target="_blank">Commons</a> · ノボホショコロトソ · CC BY 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_20_suancaiyumixian.jpg" alt="酸菜鱼米线" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">酸菜鱼米线</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_20_suancaiyumixian.jpg</div>
+        <div class="tags">
+          <span>40 元</span>
+          <span>40 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Flake_and_Pickled_Mustard_Greens_(3697782134" target="_blank">Commons</a> · Alpha from Melbourne, Australia · CC BY-SA 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_21_gongbaojiding.jpg" alt="宫保鸡丁" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">宫保鸡丁</span></div>
+        <div class="file">dish_21_gongbaojiding.jpg</div>
+        <div class="tags">
+          <span>42 元</span>
+          <span>50 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Kung-pao-shanghai.jpg" target="_blank">Commons</a> · Steven G. Johnson · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_22_yuxiangrousi.jpg" alt="鱼香肉丝" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">鱼香肉丝</span></div>
+        <div class="file">dish_22_yuxiangrousi.jpg</div>
+        <div class="tags">
+          <span>45 元</span>
+          <span>50 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Fish-flavoured_shredded_pork_at_Meizhou_Dongpo_Restaurant_Shangdi_(20190808185406" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_23_ganguohuacai.jpg" alt="干锅花菜" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">干锅花菜</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_23_ganguohuacai.jpg</div>
+        <div class="tags">
+          <span>44 元</span>
+          <span>50 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Aaloo_Gobi_(Cauliflower_with_potato" target="_blank">Commons</a> · rovingI · CC BY 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_24_disanxian.jpg" alt="地三鲜" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">地三鲜</span></div>
+        <div class="file">dish_24_disanxian.jpg</div>
+        <div class="tags">
+          <span>43 元</span>
+          <span>50 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Di_san_xian_(home-made" target="_blank">Commons</a> · 1700-talet · CC BY 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_25_nongjiaxiaochaorou.jpg" alt="农家小炒肉" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">农家小炒肉</span></div>
+        <div class="file">dish_25_nongjiaxiaochaorou.jpg</div>
+        <div class="tags">
+          <span>48 元</span>
+          <span>50 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Fried_Pork_with_Pepper_20210630.jpg" target="_blank">Commons</a> · Huangdan2060 · CC BY 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_26_shuizhouroupian.jpg" alt="水煮肉片" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">水煮肉片</span></div>
+        <div class="file">dish_26_shuizhouroupian.jpg</div>
+        <div class="tags">
+          <span>52 元</span>
+          <span>60 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Shuizhu_Roupian_at_Daqian_Restaurant,_Dachenglu_(20260126131330" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_27_suancaiyu.jpg" alt="酸菜鱼" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">酸菜鱼</span></div>
+        <div class="file">dish_27_suancaiyu.jpg</div>
+        <div class="tags">
+          <span>58 元</span>
+          <span>60 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Flowers_from_Cyndi_Wang_at_Anigi_Fish_20240518.jpg" target="_blank">Commons</a> · Solomon203 · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_28_fanqieniunan.jpg" alt="番茄牛腩" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">番茄牛腩</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_28_fanqieniunan.jpg</div>
+        <div class="tags">
+          <span>55 元</span>
+          <span>60 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:GD_%E5%BB%A3%E6%9D%B1_Guangdong_%E6%B2%B3%E6%BA%90%E5%B8%82_HeYuan_%E8%B6%8A%E7%8E%8B%E5%A4%A7%E9%81%93_YueWang_Avenue_Double_Tree_by_Hilton_Hotel_Open_Cafe_n_Restaurant_%E6%97%A9%E9%A4%90_breakfast_food_buffet_scrambled_egg_with_tomato_April_2026_N13P.jpg" target="_blank">Commons</a> · LANENWM Meso Amermbalin · CC0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_29_tangculiji.jpg" alt="糖醋里脊" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">糖醋里脊</span></div>
+        <div class="file">dish_29_tangculiji.jpg</div>
+        <div class="tags">
+          <span>56 元</span>
+          <span>60 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Sweet_and_sour_pork_tenderloin_on_Z99_(20260107181920" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_30_tiebanniuliu.jpg" alt="铁板牛柳" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">铁板牛柳</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_30_tiebanniuliu.jpg</div>
+        <div class="tags">
+          <span>60 元</span>
+          <span>60 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Beef_Steak_in_Black_Pepper_Sauce.jpg" target="_blank">Commons</a> · Ceeseven · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_31_malaxiaolongxia.jpg" alt="麻辣小龙虾" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">麻辣小龙虾</span></div>
+        <div class="file">dish_31_malaxiaolongxia.jpg</div>
+        <div class="tags">
+          <span>65 元</span>
+          <span>70 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Latiao_-_imitation_spicy_crayfish.jpg" target="_blank">Commons</a> · Fumikas Sagisavas · CC0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_32_xianglaxie.jpg" alt="香辣蟹" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">香辣蟹</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_32_xianglaxie.jpg</div>
+        <div class="tags">
+          <span>68 元</span>
+          <span>70 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Deviled_Crab_-_Mocambo.jpg" target="_blank">Commons</a> · Sumit Surai · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_33_chongqingkaoyu.jpg" alt="重庆烤鱼" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">重庆烤鱼</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_33_chongqingkaoyu.jpg</div>
+        <div class="tags">
+          <span>70 元</span>
+          <span>70 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:140531_Forellen_auf_dem_Grill.jpg" target="_blank">Commons</a> · Ansgar Koreng · CC BY-SA 3.0 de</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_34_yangrouchuan.jpg" alt="羊肉串拼盘" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">羊肉串拼盘</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_34_yangrouchuan.jpg</div>
+        <div class="tags">
+          <span>62 元</span>
+          <span>70 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Lamb_Gyro_Souvlaki_Wrap_at_Skewers_on_Commercial.jpg" target="_blank">Commons</a> · StoppedTime · CC0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_35_malaxiangguo.jpg" alt="麻辣香锅" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">麻辣香锅</span></div>
+        <div class="file">dish_35_malaxiangguo.jpg</div>
+        <div class="tags">
+          <span>66 元</span>
+          <span>70 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:A_Hot_Hideout_ingredient_selection.jpg" target="_blank">Commons</a> · Hypnoticreflection · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_36_tankaoyangpai.jpg" alt="炭烤羊排" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">炭烤羊排</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_36_tankaoyangpai.jpg</div>
+        <div class="tags">
+          <span>78 元</span>
+          <span>80 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:-2022-01-06_Lamb_loin_chops,_Trimingham,_Norfolk.JPG" target="_blank">Commons</a> · Kolforn (Kolforn) · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_37_ganguoniowa.jpg" alt="干锅牛蛙" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">干锅牛蛙</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_37_ganguoniowa.jpg</div>
+        <div class="tags">
+          <span>75 元</span>
+          <span>80 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Blacklick_Woods_-_Lithobates_catesbeianus_1.jpg" target="_blank">Commons</a> · Sixflashphoto · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_38_jiaoyanpipixia.jpg" alt="椒盐皮皮虾" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">椒盐皮皮虾</span></div>
+        <div class="file">dish_38_jiaoyanpipixia.jpg</div>
+        <div class="tags">
+          <span>76 元</span>
+          <span>80 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Freshippo_salt_%26_pepper_mantis_shrimps.jpg" target="_blank">Commons</a> · Fumikas Sagisavas · CC0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_39_heijiaoniuliu.jpg" alt="黑椒牛柳粒" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">黑椒牛柳粒</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_39_heijiaoniuliu.jpg</div>
+        <div class="tags">
+          <span>72 元</span>
+          <span>80 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Chili-con-carne.jpg" target="_blank">Commons</a> · Kazvorpal · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_40_suantangfeiniu.jpg" alt="酸汤肥牛" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">酸汤肥牛</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_40_suantangfeiniu.jpg</div>
+        <div class="tags">
+          <span>74 元</span>
+          <span>80 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Beef_Stroganoff-03.jpg" target="_blank">Commons</a> · V 2 · CC BY 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_41_heijiaoniupai.jpg" alt="黑椒牛排" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">黑椒牛排</span></div>
+        <div class="file">dish_41_heijiaoniupai.jpg</div>
+        <div class="tags">
+          <span>86 元</span>
+          <span>90 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Black_Pepper_Beefsteak_and_Prickly_Ash_Fish_Fillets_set_meal_on_C7076_(20190419133002" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_42_sanwenyucishen.jpg" alt="三文鱼刺身" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">三文鱼刺身</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_42_sanwenyucishen.jpg</div>
+        <div class="tags">
+          <span>90 元</span>
+          <span>90 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Salmon_Sashimi_ingredients.png" target="_blank">Commons</a> · GeoO · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_43_fashiyangpai.jpg" alt="法式羊排" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">法式羊排</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_43_fashiyangpai.jpg</div>
+        <div class="tags">
+          <span>88 元</span>
+          <span>90 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Crown_roast_(rack_of_lamb_or_mutton" target="_blank">Commons</a> · Unknown authorUnknown author · Public domain</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_44_haixiandaka.jpg" alt="海鲜大咖" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">海鲜大咖</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_44_haixiandaka.jpg</div>
+        <div class="tags">
+          <span>85 元</span>
+          <span>90 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Assiette_de_fruits_de_mer_March%C3%A9_des_Capucins_Bordeaux_(1" target="_blank">Commons</a> · Benreis · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_45_longxiayimian.jpg" alt="龙虾意面" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">龙虾意面</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_45_longxiayimian.jpg</div>
+        <div class="tags">
+          <span>82 元</span>
+          <span>90 元档</span>
+          <span>主食</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Lobster_fettuccine_(15521103210" target="_blank">Commons</a> · Mike W. from Vancouver, Canada · CC BY-SA 2.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_46_zhanfuniupai.jpg" alt="战斧牛排" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">战斧牛排</span></div>
+        <div class="file">dish_46_zhanfuniupai.jpg</div>
+        <div class="tags">
+          <span>98 元</span>
+          <span>100 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:-2021-10-31_Rib_of_Beef,_Trimingham,_Norfolk.JPG" target="_blank">Commons</a> · Kolforn (Kolforn) · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_47_diwangxie.jpg" alt="帝王蟹" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">帝王蟹</span></div>
+        <div class="file">dish_47_diwangxie.jpg</div>
+        <div class="tags">
+          <span>100 元</span>
+          <span>100 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Lithodes.santolla.JPG" target="_blank">Commons</a> · Butterfly voyages · CC BY-SA 3.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_48_boshidunlongxia.jpg" alt="波士顿龙虾" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">波士顿龙虾</span></div>
+        <div class="file">dish_48_boshidunlongxia.jpg</div>
+        <div class="tags">
+          <span>96 元</span>
+          <span>100 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Homarus_americanus_(YPM_IZ_049809" target="_blank">Commons</a> · Eric A. Lazo-Wasem · CC0</div>
+      </div>
+    </div>
+    <div class="card focus" data-focus="true">
+      <img src="../assets/dishes/dish_49_heniushouxiguo.jpg" alt="和牛寿喜锅" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">和牛寿喜锅</span><span class="badge">重点核对</span></div>
+        <div class="file">dish_49_heniushouxiguo.jpg</div>
+        <div class="tags">
+          <span>95 元</span>
+          <span>100 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Sukiyaki_(furikake" target="_blank">Commons</a> · Semiprecious stone · CC BY-SA 4.0</div>
+      </div>
+    </div>
+    <div class="card" data-focus="false">
+      <img src="../assets/dishes/dish_50_fotiaoqiang.jpg" alt="佛跳墙" loading="lazy" />
+      <div class="meta">
+        <div class="row1"><span class="name">佛跳墙</span></div>
+        <div class="file">dish_50_fotiaoqiang.jpg</div>
+        <div class="tags">
+          <span>99 元</span>
+          <span>100 元档</span>
+          <span>菜品</span>
+        </div>
+        <div class="source"><a href="https://commons.wikimedia.org/wiki/File:Buddha_jumps_over_the_wall_at_Jingrong_(20161203135907" target="_blank">Commons</a> · N509FZ · CC BY-SA 4.0</div>
+      </div>
+    </div>
+  </div>
+<script>
+  var focusOnly = false, doneCount = 0;
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  function render() {
+    cards.forEach(function (c) {
+      c.style.display = (!focusOnly || c.dataset.focus === 'true') ? '' : 'none';
+    });
+    document.getElementById('count').textContent =
+      '已核对 ' + doneCount + ' / ' + cards.length + ' 道';
+  }
+  document.getElementById('focusBtn').addEventListener('click', function () {
+    focusOnly = !focusOnly;
+    this.classList.toggle('on', focusOnly);
+    render();
+  });
+  document.getElementById('doneBtn').addEventListener('click', function () {
+    cards.forEach(function (c) {
+      if (c.style.display !== 'none') {
+        if (!c.classList.contains('done')) doneCount++;
+        c.classList.add('done');
+      }
+    });
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

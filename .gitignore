@@ -54,3 +54,7 @@ tools/extracted.txt
 # golden 测试失败时生成的对比图，不入库
 test/failures/
 
+
+# 图片核对用的拼图（体积大，可由 tools/make_contact_sheet.py 随时重新生成）
+docs/核对表_*.png
+

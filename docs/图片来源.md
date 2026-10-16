@@ -1,9 +1,10 @@
 # 菜品图片来源与署名
 
-本文件列出 `assets/dishes/` 下每张图片的来源、作者与许可，
-用于满足 Wikimedia Commons 上 CC BY / CC BY-SA 等许可的署名要求。
+本文件列出 `assets/dishes/` 下每张图片的来源、作者与许可。
+来自 Wikimedia Commons 的图片按各自标注的许可使用（CC BY / CC BY-SA 等要求署名）；
+由需求方自行提供并替换的图片，来源列写明「用户提供」。
 
-| 菜品 | 文件名 | 作者 | 许可 | 原始页面 |
+| 菜品 | 文件名 | 作者 | 许可 | 来源 |
 | --- | --- | --- | --- | --- |
 | 茶叶蛋 | `dish_01_chayedan.jpg` | Dromafoobeno | CC BY-SA 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:HK_Sai_Ying_Pun_Des_Voeux_Road_West_Tea_Eggs_Snack_Shop.JPG) |
 | 豆浆油条 | `dish_02_doujiangyoutiao.jpg` | 瑞丽江的河水 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:%E5%BA%86%E4%B8%B0%E5%8C%85%E5%AD%90%E9%93%BA%E7%BE%8A%E5%9D%8A%E5%BA%97%E8%B7%AF%E5%BA%97_-_%E6%97%A9%E9%A4%90_-_2025-10-24.jpg) |
@@ -40,18 +41,7 @@
 | 重庆烤鱼 | `dish_33_chongqingkaoyu.jpg` | Ansgar Koreng | CC BY-SA 3.0 de | [Commons](https://commons.wikimedia.org/wiki/File:140531_Forellen_auf_dem_Grill.jpg) |
 | 羊肉串拼盘 | `dish_34_yangrouchuan.jpg` | StoppedTime | CC0 | [Commons](https://commons.wikimedia.org/wiki/File:Lamb_Gyro_Souvlaki_Wrap_at_Skewers_on_Commercial.jpg) |
 | 麻辣香锅 | `dish_35_malaxiangguo.jpg` | Hypnoticreflection | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:A_Hot_Hideout_ingredient_selection.jpg) |
-| 炭烤羊排 | `dish_36_tankaoyangpai.jpg` | Kolforn (Kolforn)
-I'd appreciate if you could mail me (Kolforn@gmail.com) if you want to use this picture out of the Wikimedia project scope.
-
-
-
- This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.
-You are free:
-to share – to copy, distribute and transmit the work
-to remix – to adapt the work
-Under the following conditions:
-attribution – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-share alike – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original.https://creativecommons.org/licenses/by-sa/4.0CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:-2022-01-06_Lamb_loin_chops,_Trimingham,_Norfolk.JPG) |
+| 炭烤羊排 | `dish_36_tankaoyangpai.jpg` | Kolforn (Kolforn) | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:-2022-01-06_Lamb_loin_chops,_Trimingham,_Norfolk.JPG) |
 | 干锅牛蛙 | `dish_37_ganguoniowa.jpg` | Sixflashphoto | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Blacklick_Woods_-_Lithobates_catesbeianus_1.jpg) |
 | 椒盐皮皮虾 | `dish_38_jiaoyanpipixia.jpg` | Fumikas Sagisavas | CC0 | [Commons](https://commons.wikimedia.org/wiki/File:Freshippo_salt_%26_pepper_mantis_shrimps.jpg) |
 | 黑椒牛柳粒 | `dish_39_heijiaoniuliu.jpg` | Kazvorpal | CC BY-SA 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:Chili-con-carne.jpg) |
@@ -61,22 +51,11 @@ share alike – If you remix, transform, or build upon the material, you must di
 | 法式羊排 | `dish_43_fashiyangpai.jpg` | Unknown authorUnknown author | Public domain | [Commons](https://commons.wikimedia.org/wiki/File:Crown_roast_(rack_of_lamb_or_mutton).jpg) |
 | 海鲜大咖 | `dish_44_haixiandaka.jpg` | Benreis | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Assiette_de_fruits_de_mer_March%C3%A9_des_Capucins_Bordeaux_(1).jpg) |
 | 龙虾意面 | `dish_45_longxiayimian.jpg` | Mike W. from Vancouver, Canada | CC BY-SA 2.0 | [Commons](https://commons.wikimedia.org/wiki/File:Lobster_fettuccine_(15521103210).jpg) |
-| 战斧牛排 | `dish_46_zhanfuniupai.jpg` | Kolforn (Kolforn)
-I'd appreciate if you could mail me (Kolforn@gmail.com) if you want to use this picture out of the Wikimedia project scope.
-
-
-
- This file is licensed under the Creative Commons Attribution-Share Alike 4.0 International license.
-You are free:
-to share – to copy, distribute and transmit the work
-to remix – to adapt the work
-Under the following conditions:
-attribution – You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-share alike – If you remix, transform, or build upon the material, you must distribute your contributions under the same or compatible license as the original.https://creativecommons.org/licenses/by-sa/4.0CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:-2021-10-31_Rib_of_Beef,_Trimingham,_Norfolk.JPG) |
+| 战斧牛排 | `dish_46_zhanfuniupai.jpg` | Kolforn (Kolforn) | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:-2021-10-31_Rib_of_Beef,_Trimingham,_Norfolk.JPG) |
 | 帝王蟹 | `dish_47_diwangxie.jpg` | Butterfly voyages | CC BY-SA 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:Lithodes.santolla.JPG) |
 | 波士顿龙虾 | `dish_48_boshidunlongxia.jpg` | Eric A. Lazo-Wasem | CC0 | [Commons](https://commons.wikimedia.org/wiki/File:Homarus_americanus_(YPM_IZ_049809).jpeg) |
 | 和牛寿喜锅 | `dish_49_heniushouxiguo.jpg` | Semiprecious stone | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Sukiyaki_(furikake).jpg) |
 | 佛跳墙 | `dish_50_fotiaoqiang.jpg` | N509FZ | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Buddha_jumps_over_the_wall_at_Jingrong_(20161203135907).jpg) |
 
-共 50 张图片，全部来自 [Wikimedia Commons](https://commons.wikimedia.org/)，
-各自按其标注的许可使用。若某张图片的许可要求署名，请保留本文件。
+共 50 张图片，其中 50 张来自 [Wikimedia Commons](https://commons.wikimedia.org/)，0 张由需求方提供。
+若某张图片的许可要求署名，请保留本文件。
