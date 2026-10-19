@@ -3,6 +3,12 @@ var dishUtil = require('../../utils/dishes.js');
 var takeout = require('../../utils/takeout.js');
 var nearby = require('../../utils/nearby.js');
 
+/**
+ * 「抽签中」停留时长（ms），之后翻牌揭晓。
+ * 方案 B 的三段式节奏：抽签 300ms → 翻牌 180ms → 光环扩散 420ms（约 900ms 收尾）。
+ */
+var ROLL_MS = 300;
+
 Page({
   data: {
     tierLabels: [],
@@ -10,6 +16,8 @@ Page({
     dish: null,
     tierLabel: '',
     hasDish: false,
+    // 翻牌动效阶段：'back' = 抽签中（背面），'front' = 揭晓（正面）
+    flipPhase: 'front',
     // 「再随机一个」沿用的档位；null = 所有价位
     rerollTier: null,
     // 点外卖：平台选择页
@@ -289,17 +297,37 @@ Page({
       return;
     }
     var tier = dishUtil.tierOfPrice(dish.price);
+    var that = this;
+
+    // 每次出结果都重放「抽签 → 翻牌 → 光爆」：先切回背面，再定时翻到正面
+    // （「再随机一个」时同样会重播）
+    this.clearFlipTimer();
     this.setData({
       dish: dish,
       hasDish: true,
       tierLabel: tier ? tier.label : '',
       showTakeout: false,
+      flipPhase: 'back',
     });
+
+    this._flipTimer = setTimeout(function () {
+      that._flipTimer = null;
+      that.setData({ flipPhase: 'front' });
+    }, ROLL_MS);
+  },
+
+  /** 清掉翻牌定时器（关弹窗 / 离开页面时调用，避免 setData 打在已销毁的页面上） */
+  clearFlipTimer: function () {
+    if (this._flipTimer) {
+      clearTimeout(this._flipTimer);
+      this._flipTimer = null;
+    }
   },
 
   /** 关闭结果弹窗（点遮罩或「关闭」按钮都会走到这里） */
   onCloseDish: function () {
-    this.setData({ hasDish: false, showTakeout: false });
+    this.clearFlipTimer();
+    this.setData({ hasDish: false, showTakeout: false, flipPhase: 'front' });
   },
 
   // ── 点外卖（《增加功能.docx》第 3 条）──────────────────────
@@ -356,5 +384,10 @@ Page({
     }
 
     wx.showToast({ title: '平台不存在', icon: 'none' });
+  },
+
+  /** 页面卸载：清掉翻牌定时器 */
+  onUnload: function () {
+    this.clearFlipTimer();
   },
 });
