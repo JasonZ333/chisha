@@ -69,7 +69,11 @@
     <view class="modal-card">
       <view class="nearby-head">
         <image class="nearby-head-icon" src="/images/icons/icon_location.png" mode="aspectFit" />
-        <text class="nearby-head-text">{{nearbyBusy ? nearbyStatus : '附近美食'}}</text>
+        <view class="nearby-head-main">
+          <text class="nearby-head-text">{{nearbyBusy ? nearbyStatus : '附近美食'}}</text>
+          <text class="nearby-head-sub" wx:if="{{!nearbyBusy && nearbyArea}}">当前定位：{{nearbyArea}}</text>
+        </view>
+        <view class="nearby-change" wx:if="{{!nearbyBusy}}" bindtap="onChangeLocation">改地点</view>
       </view>
 
       <view class="nearby-body" wx:if="{{nearby}}">
@@ -85,6 +89,49 @@
         </view>
         <view class="modal-close" bindtap="onNearbyClose">关闭</view>
       </view>
+    </view>
+  </view>
+
+  <!-- 改地点：输入关键词 → 腾讯位置服务关键词提示（同样不需要微信权限）-->
+  <view class="modal-wrap" wx:if="{{showLocationPicker}}">
+    <view class="modal-mask" bindtap="onCloseLocationPicker"></view>
+    <view class="modal-card">
+      <view class="picker-head">
+        <view class="picker-title">你在哪儿附近？</view>
+        <view class="picker-note">输入商圈、地铁站或地名，从候选里选一个</view>
+      </view>
+
+      <view class="picker-body">
+        <input
+          class="picker-input"
+          value="{{locationKeyword}}"
+          placeholder="例如：三里屯 / 国贸 / 昌平"
+          confirm-type="search"
+          focus="{{showLocationPicker}}"
+          bindinput="onLocationInput"
+        />
+
+        <view class="picker-hint" wx:if="{{locationBusy}}">搜索中…</view>
+
+        <scroll-view class="picker-list" scroll-y wx:if="{{!locationBusy && locationSuggestions.length}}">
+          <view
+            class="picker-item"
+            wx:for="{{locationSuggestions}}"
+            wx:key="id"
+            data-index="{{index}}"
+            bindtap="onPickLocation"
+          >
+            <text class="picker-item-title">{{item.title}}</text>
+            <text class="picker-item-addr" wx:if="{{item.address}}">{{item.address}}</text>
+          </view>
+        </scroll-view>
+
+        <view class="picker-hint" wx:if="{{!locationBusy && !locationSuggestions.length}}">
+          输入地点后，从上面的候选里选一个
+        </view>
+      </view>
+
+      <view class="modal-close" bindtap="onCloseLocationPicker">取消</view>
     </view>
   </view>
 

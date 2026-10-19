@@ -10,14 +10,6 @@
     "backgroundColor": "#FBF3EC",
     "backgroundTextStyle": "light"
   },
-  "permission": {
-    "scope.userLocation": {
-      "desc": "用于随机推荐你附近的美食"
-    }
-  },
-  "requiredPrivateInfos": [
-    "getLocation"
-  ],
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"

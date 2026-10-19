@@ -16,11 +16,20 @@ Page({
     showTakeout: false,
     platforms: [],
     copied: false,
-    // 附近美食（任务二）：定位 + 腾讯位置服务周边搜索
+    // 附近美食：IP 定位 + 腾讯位置服务周边搜索（不需要微信位置权限）
     nearbyBusy: false,
     nearbyStatus: '',
     nearby: null,
     nearbyDistance: '',
+    // 当前用于搜索的位置（IP 定位得到，或用户手动选的地点）
+    nearbyArea: '',
+    nearbyLat: 0,
+    nearbyLng: 0,
+    // 「改地点」：输入关键词 → 腾讯位置服务关键词提示
+    showLocationPicker: false,
+    locationKeyword: '',
+    locationSuggestions: [],
+    locationBusy: false,
   },
 
   onLoad: function () {
@@ -47,14 +56,14 @@ Page({
   },
 
   /**
-   * 附近美食随机（《增加功能.docx》任务二）。
+   * 附近美食随机（《增加功能.docx》任务二 + 后续调整）。
    *
-   * 流程：获取用户位置（wx.getLocation，gcj02）→ 用腾讯位置服务做周边搜索
-   * → 从结果里随机挑一家 → 卡片展示店名/距离/地址，可点击导航。
+   * 流程：按**网络 IP** 判断城市/区（不需要微信位置权限）
+   * → 腾讯位置服务周边搜索 → 随机挑一家 → 弹窗展示，可导航。
+   * 本次已经定位/选过地点时直接搜索；用户也可以「改地点」手动指定。
    */
   onRandomNearby: function () {
     if (this.data.nearbyBusy) return;
-    var that = this;
 
     // 还没配置位置服务的 key：给个明确交代，不发请求
     if (!nearby.isConfigured()) {
@@ -67,49 +76,80 @@ Page({
       return;
     }
 
+    // 已经知道位置（本次 IP 定位过 / 手动选过）→ 直接在同一点再搜
+    if (this.data.nearbyLat && this.data.nearbyLng) {
+      this.searchNearby(this.data.nearbyLat, this.data.nearbyLng);
+      return;
+    }
+
+    var that = this;
     this.setData({
       nearbyBusy: true,
-      nearbyStatus: '正在获取位置…',
+      nearbyStatus: '正在按网络定位…',
       nearby: null,
       nearbyDistance: '',
     });
 
-    wx.getLocation({
-      type: 'gcj02',
-      success: function (loc) {
-        that.setData({ nearbyStatus: '正在搜索附近美食…' });
-        wx.request({
-          url: nearby.buildSearchUrl(loc.latitude, loc.longitude),
-          method: 'GET',
-          success: function (res) {
-            var parsed = nearby.parsePlaces(res.data);
-            if (!parsed.ok) {
-              that.setData({ nearbyBusy: false, nearbyStatus: '' });
-              wx.showToast({ title: parsed.error, icon: 'none', duration: 3000 });
-              return;
-            }
-            that.showNearby(nearby.pickPlace(parsed.places));
-          },
-          fail: function () {
-            that.setData({ nearbyBusy: false, nearbyStatus: '' });
-            wx.showToast({
-              title: '搜索附近美食失败，请检查网络',
-              icon: 'none',
-              duration: 3000,
-            });
-          },
+    wx.request({
+      url: nearby.buildIpUrl(),
+      method: 'GET',
+      success: function (res) {
+        var ip = nearby.parseIpLocation(res.data);
+        if (!ip.ok) {
+          that.setData({ nearbyBusy: false, nearbyStatus: '' });
+          wx.showModal({
+            title: '附近美食暂不可用',
+            content: ip.error + '\n\n你可以手动指定地点。',
+            confirmText: '改地点',
+            cancelText: '算了',
+            success: function (m) {
+              if (m.confirm) that.setData({ showLocationPicker: true });
+            },
+          });
+          return;
+        }
+        that.setData({
+          nearbyArea: ip.area,
+          nearbyLat: ip.lat,
+          nearbyLng: ip.lng,
         });
+        that.searchNearby(ip.lat, ip.lng);
       },
-      fail: function (err) {
+      fail: function () {
         that.setData({ nearbyBusy: false, nearbyStatus: '' });
-        wx.showModal({
-          title: '无法获取位置',
-          content: nearby.locationErrorMessage(err),
-          confirmText: '去设置',
-          cancelText: '算了',
-          success: function (m) {
-            if (m.confirm) wx.openSetting({});
-          },
+        wx.showToast({ title: '网络异常，定位失败', icon: 'none' });
+      },
+    });
+  },
+
+  /** 在指定坐标周边搜索美食，并随机挑一家 */
+  searchNearby: function (lat, lng) {
+    var that = this;
+    this.setData({
+      nearbyBusy: true,
+      nearbyStatus: '正在搜索附近美食…',
+      nearby: null,
+      nearbyDistance: '',
+    });
+
+    wx.request({
+      url: nearby.buildSearchUrl(lat, lng),
+      method: 'GET',
+      success: function (res) {
+        var parsed = nearby.parsePlaces(res.data);
+        if (!parsed.ok) {
+          that.setData({ nearbyBusy: false, nearbyStatus: '' });
+          wx.showToast({ title: parsed.error, icon: 'none', duration: 3500 });
+          return;
+        }
+        that.showNearby(nearby.pickPlace(parsed.places));
+      },
+      fail: function () {
+        that.setData({ nearbyBusy: false, nearbyStatus: '' });
+        wx.showToast({
+          title: '搜索附近美食失败，请检查网络',
+          icon: 'none',
+          duration: 3000,
         });
       },
     });
@@ -130,9 +170,81 @@ Page({
     });
   },
 
-  /** 附近结果：换一家（重新定位并再随机挑一次） */
+  /** 附近结果：换一家（在当前地点再随机挑一次） */
   onNearbyReroll: function () {
-    this.onRandomNearby();
+    if (!this.data.nearbyLat || !this.data.nearbyLng) {
+      this.onRandomNearby();
+      return;
+    }
+    this.searchNearby(this.data.nearbyLat, this.data.nearbyLng);
+  },
+
+  /** 打开「改地点」 */
+  onChangeLocation: function () {
+    this.setData({
+      showLocationPicker: true,
+      locationKeyword: '',
+      locationSuggestions: [],
+    });
+  },
+
+  /** 关掉「改地点」 */
+  onCloseLocationPicker: function () {
+    this.setData({
+      showLocationPicker: false,
+      locationKeyword: '',
+      locationSuggestions: [],
+      locationBusy: false,
+    });
+  },
+
+  /** 「改地点」输入框：边输边查关键词提示 */
+  onLocationInput: function (e) {
+    var keyword = (e.detail.value || '').trim();
+    this.setData({ locationKeyword: keyword });
+
+    if (!keyword) {
+      this.setData({ locationSuggestions: [], locationBusy: false });
+      return;
+    }
+
+    var that = this;
+    // 用当前城市做 region，提高命中率
+    var region = (this.data.nearbyArea || '').split(' ')[0] || '';
+    this.setData({ locationBusy: true });
+
+    wx.request({
+      url: nearby.buildSuggestionUrl(keyword, region),
+      method: 'GET',
+      success: function (res) {
+        var r = nearby.parseSuggestions(res.data);
+        that.setData({
+          locationBusy: false,
+          locationSuggestions: r.ok ? r.items : [],
+        });
+      },
+      fail: function () {
+        that.setData({ locationBusy: false, locationSuggestions: [] });
+      },
+    });
+  },
+
+  /** 从提示列表里选中一个地点 → 用它搜索 */
+  onPickLocation: function (e) {
+    var index = Number(e.currentTarget.dataset.index);
+    var item = this.data.locationSuggestions[index];
+    if (!item) return;
+
+    this.setData({
+      nearbyArea: item.title,
+      nearbyLat: item.lat,
+      nearbyLng: item.lng,
+      showLocationPicker: false,
+      locationKeyword: '',
+      locationSuggestions: [],
+    });
+
+    this.searchNearby(item.lat, item.lng);
   },
 
   /** 打开地图导航到这家店 */

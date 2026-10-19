@@ -57,7 +57,11 @@ test('buildSearchUrl 组装出腾讯位置服务的周边搜索地址', function
     var url = nearby.buildSearchUrl(39.9087, 116.3975);
 
     assert.ok(url.indexOf('https://apis.map.qq.com/ws/place/v1/search') === 0, '接口地址不对');
-    assert.ok(url.indexOf('nearby(39.9087%2C116.3975%2C3000)') !== -1, 'boundary 参数不对：' + url);
+    assert.ok(
+      url.indexOf('nearby(39.9087%2C116.3975%2C' + nearby.CONFIG.radius + ')') !== -1,
+      'boundary 参数不对：' + url
+    );
+    assert.strictEqual(nearby.CONFIG.radius, 5000, 'IP 定位只到区级，半径应为 5 公里');
     assert.ok(url.indexOf('keyword=' + encodeURIComponent('美食')) !== -1, '缺少关键词');
     assert.ok(url.indexOf('page_size=20') !== -1, '缺少每页条数');
     assert.ok(url.indexOf('orderby=_distance') !== -1, '应按距离排序');
@@ -183,39 +187,145 @@ test('formatDistance 对无效值返回空串（界面不显示占位标签）',
   assert.strictEqual(nearby.formatDistance('320'), '');
 });
 
-// ── 定位失败提示 ────────────────────────────────────────
-test('locationErrorMessage 把各种失败翻译成人话', function () {
-  assert.ok(
-    nearby.locationErrorMessage({ errMsg: 'getLocation:fail auth deny' }).indexOf('位置权限') !== -1
-  );
-  assert.ok(
-    nearby.locationErrorMessage({ errMsg: 'getLocation:fail timeout' }).indexOf('超时') !== -1
-  );
-  assert.ok(
-    nearby.locationErrorMessage({ errMsg: 'getLocation:fail system permission denied' })
-      .indexOf('手机设置') !== -1
-  );
-  assert.ok(nearby.locationErrorMessage({}).length > 0, '未知错误也要有兜底文案');
-  assert.ok(nearby.locationErrorMessage(null).length > 0);
+// ── IP 定位（不需要微信位置权限）────────────────────────
+test('buildIpUrl 组装出 IP 定位地址', function () {
+  var saved = nearby.CONFIG.key;
+  nearby.CONFIG.key = 'TEST-KEY-123';
+  try {
+    var url = nearby.buildIpUrl();
+    assert.ok(
+      url.indexOf('https://apis.map.qq.com/ws/location/v1/ip') === 0,
+      '接口地址不对：' + url
+    );
+    assert.ok(url.indexOf('key=TEST-KEY-123') !== -1, '缺少 key');
+    assert.strictEqual(url.indexOf('ip='), -1, '不传 ip 参数时才按请求方 IP 判断');
+  } finally {
+    nearby.CONFIG.key = saved;
+  }
+});
+
+test('parseIpLocation 解析出城市/区与坐标', function () {
+  var r = nearby.parseIpLocation({
+    status: 0,
+    result: {
+      ip: '183.241.15.48',
+      location: { lat: 40.22077, lng: 116.23128 },
+      ad_info: { province: '北京市', city: '北京市', district: '昌平区', adcode: 110114 },
+    },
+  });
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.area, '北京市 昌平区');
+  assert.strictEqual(r.city, '北京市');
+  assert.strictEqual(r.district, '昌平区');
+  assert.strictEqual(r.lat, 40.22077);
+  assert.strictEqual(r.lng, 116.23128);
+});
+
+test('parseIpLocation 对只有省、缺坐标、额度错误都能兜住', function () {
+  var onlyProvince = nearby.parseIpLocation({
+    status: 0,
+    result: { location: { lat: 1, lng: 2 }, ad_info: { province: '海南省' } },
+  });
+  assert.strictEqual(onlyProvince.ok, true);
+  assert.strictEqual(onlyProvince.area, '海南省');
+
+  var noCoord = nearby.parseIpLocation({ status: 0, result: { ad_info: { city: '北京市' } } });
+  assert.strictEqual(noCoord.ok, false);
+  assert.ok(noCoord.error.indexOf('坐标') !== -1, noCoord.error);
+
+  var err = nearby.parseIpLocation({ status: 121, message: '此key每日调用量已达到上限' });
+  assert.strictEqual(err.ok, false);
+  assert.ok(err.error.indexOf('调用量') !== -1, err.error);
+});
+
+// ── 改地点：关键词提示 ──────────────────────────────────
+test('buildSuggestionUrl 组装出关键词提示地址', function () {
+  var saved = nearby.CONFIG.key;
+  nearby.CONFIG.key = 'TEST-KEY-123';
+  try {
+    var url = nearby.buildSuggestionUrl('三里屯', '北京市');
+    assert.ok(
+      url.indexOf('https://apis.map.qq.com/ws/place/v1/suggestion') === 0,
+      '接口地址不对：' + url
+    );
+    assert.ok(url.indexOf('keyword=' + encodeURIComponent('三里屯')) !== -1, '缺少关键词');
+    assert.ok(url.indexOf('region=' + encodeURIComponent('北京市')) !== -1, '缺少 region');
+    assert.ok(url.indexOf('key=TEST-KEY-123') !== -1, '缺少 key');
+  } finally {
+    nearby.CONFIG.key = saved;
+  }
+});
+
+test('parseSuggestions 解析出候选地点并跳过残缺项', function () {
+  var r = nearby.parseSuggestions({
+    status: 0,
+    data: [
+      {
+        id: 'a',
+        title: '三里屯太古里',
+        address: '朝阳区三里屯路19号',
+        location: { lat: 39.93, lng: 116.45 },
+      },
+      { id: 'b', title: '', address: 'x', location: { lat: 1, lng: 2 } },
+      { id: 'c', title: '三里屯SOHO', location: { lat: 39.94, lng: 116.46 } },
+    ],
+  });
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.items.length, 2, '空标题的条目应被跳过');
+  assert.strictEqual(r.items[0].title, '三里屯太古里');
+  assert.strictEqual(r.items[0].lat, 39.93);
+  assert.strictEqual(r.items[1].address, '');
+});
+
+test('parseSuggestions 对空结果与错误状态都有兜底', function () {
+  var empty = nearby.parseSuggestions({ status: 0, data: [] });
+  assert.strictEqual(empty.ok, false);
+  assert.ok(empty.error.indexOf('没搜到') !== -1, empty.error);
+
+  var err = nearby.parseSuggestions({ status: 190, message: 'invalid key' });
+  assert.strictEqual(err.ok, false);
+  assert.ok(err.error.indexOf('190') !== -1, err.error);
 });
 
 // ── 页面接线 ────────────────────────────────────────────
-test('app.json 声明了位置权限与隐私接口（wx.getLocation 的硬性要求）', function () {
-  assert.ok(appJson.indexOf('"requiredPrivateInfos"') !== -1, '缺少 requiredPrivateInfos');
-  assert.ok(/"requiredPrivateInfos"[\s\S]*?"getLocation"/.test(appJson), 'requiredPrivateInfos 里应有 getLocation');
-  assert.ok(appJson.indexOf('scope.userLocation') !== -1, '缺少 scope.userLocation 权限说明');
-  assert.ok(appJson.indexOf('desc') !== -1, '权限说明要有 desc');
+test('不再声明 getLocation 隐私接口（改用 IP 定位，不碰设备位置）', function () {
+  assert.strictEqual(
+    appJson.indexOf('requiredPrivateInfos'),
+    -1,
+    'app.json 不应再声明 requiredPrivateInfos'
+  );
+  assert.strictEqual(
+    appJson.indexOf('scope.userLocation'),
+    -1,
+    'app.json 不应再声明位置权限说明'
+  );
+  assert.strictEqual(
+    /wx\.getLocation\s*\(/.test(indexJs),
+    false,
+    '页面不应再调用 wx.getLocation（个人主体拿不到该接口权限）'
+  );
 });
 
-test('页面真的走通了「定位 → 请求 → 展示 → 导航」链路', function () {
-  assert.ok(/wx\.getLocation\(/.test(indexJs), '缺少 wx.getLocation');
-  assert.ok(/type:\s*'gcj02'/.test(indexJs), '定位坐标系应为 gcj02（腾讯地图用这个）');
+test('页面走通了「IP 定位 → 周边搜索 → 展示 → 导航」链路', function () {
+  assert.ok(/nearby\.buildIpUrl\(\)/.test(indexJs), '缺少 IP 定位请求');
+  assert.ok(/nearby\.parseIpLocation\(/.test(indexJs), 'IP 定位返回应交 parseIpLocation 解析');
   assert.ok(/wx\.request\(/.test(indexJs), '缺少 wx.request');
   assert.ok(/nearby\.buildSearchUrl\(/.test(indexJs), '请求地址应由 buildSearchUrl 生成');
   assert.ok(/nearby\.parsePlaces\(/.test(indexJs), '返回值应交给 parsePlaces 解析');
   assert.ok(/nearby\.pickPlace\(/.test(indexJs), '应从结果里随机挑一家');
   assert.ok(/wx\.openLocation\(/.test(indexJs), '缺少导航（wx.openLocation）');
-  assert.ok(/wx\.openSetting\(/.test(indexJs), '定位被拒后应能引导用户去设置');
+});
+
+test('「改地点」接入关键词提示，并复用同一套搜索', function () {
+  assert.ok(/nearby\.buildSuggestionUrl\(/.test(indexJs), '缺少关键词提示请求');
+  assert.ok(/nearby\.parseSuggestions\(/.test(indexJs), '提示返回应交 parseSuggestions 解析');
+  assert.ok(/onChangeLocation:/.test(indexJs), '缺少打开「改地点」的处理函数');
+  assert.ok(/onPickLocation:/.test(indexJs), '缺少选中候选地点的处理函数');
+  assert.ok(indexWxml.indexOf('onChangeLocation') !== -1, '结果弹窗缺少「改地点」入口');
+  assert.ok(indexWxml.indexOf('改地点') !== -1, '结果弹窗缺少「改地点」文案');
+  assert.ok(indexWxml.indexOf('showLocationPicker') !== -1, '缺少地点选择弹窗');
+  assert.ok(indexWxml.indexOf('onLocationInput') !== -1, '地点选择弹窗缺少输入框');
+  assert.ok(indexWxml.indexOf('{{nearbyArea}}') !== -1, '结果弹窗应显示当前定位');
 });
 
 test('附近结果卡片有店名/距离/分类/地址与两个操作按钮', function () {
