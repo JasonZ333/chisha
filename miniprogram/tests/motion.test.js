@@ -204,6 +204,40 @@ test('关弹窗 / 离开页面都会清掉翻牌定时器', function () {
   );
 });
 
+test('整体节奏约 2 秒（用户要求放慢，别又改快）', function () {
+  var rollMatch = indexJs.match(/var ROLL_MS = (\d+)/);
+  assert.ok(rollMatch, '缺少 ROLL_MS');
+  var roll = Number(rollMatch[1]);
+
+  var flipMatch = wxss.match(/\.flip-inner\s*\{[^}]*transition:\s*transform\s+(\d+)ms/);
+  assert.ok(flipMatch, '缺少翻转过渡时长');
+
+  var glowMatch = wxss.match(
+    /\.flip-stage\.is-front \.fx-glow\s*\{[^}]*animation:\s*glow-bloom\s+(\d+)ms/
+  );
+  assert.ok(glowMatch, '缺少光晕动画时长');
+
+  var ringMatch = wxss.match(
+    /\.flip-stage\.is-front \.fx-ring\s*\{[^}]*animation:\s*ring-burst\s+(\d+)ms/
+  );
+  assert.ok(ringMatch, '缺少光环动画时长');
+
+  // 抽签结束后开始光爆，所以「抽签 + 光爆」就是用户感知的总时长
+  var total = roll + Number(glowMatch[1]);
+  assert.ok(
+    total >= 1800 && total <= 2200,
+    '整体节奏应约 2 秒，当前约 ' + total + 'ms（抽签 ' + roll + ' + 光晕 ' + glowMatch[1] + '）'
+  );
+  assert.ok(
+    Number(flipMatch[1]) >= 400,
+    '翻转过渡应足够慢，当前 ' + flipMatch[1] + 'ms'
+  );
+  assert.ok(
+    Number(ringMatch[1]) >= 600,
+    '光环扩散应足够慢，当前 ' + ringMatch[1] + 'ms'
+  );
+});
+
 test('动效只用 WXSS 实现，不引入动画库或额外资源', function () {
   assert.strictEqual(
     /lottie|f2-plugin|canvas-api/i.test(indexJs),

@@ -5,9 +5,10 @@ var nearby = require('../../utils/nearby.js');
 
 /**
  * 「抽签中」停留时长（ms），之后翻牌揭晓。
- * 方案 B 的三段式节奏：抽签 300ms → 翻牌 180ms → 光环扩散 420ms（约 900ms 收尾）。
+ * 方案 B 的三段式节奏（用户要求整体约 2 秒）：
+ *   抽签 800ms → 翻牌 600ms → 光爆 1200ms（光爆与翻牌有重叠，整体约 2s 收尾）
  */
-var ROLL_MS = 300;
+var ROLL_MS = 800;
 
 Page({
   data: {
