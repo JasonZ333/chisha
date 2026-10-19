@@ -680,8 +680,8 @@ Commons 上多数图片是 CC BY / CC BY-SA 许可，**要求署名**。
 | 京东 | `wx91d27dbf599dff74` | ✅ 已配置，可跳转 |
 | 饿了么 | `wxece3a9a4c82f58c9` | ✅ 已配置，可跳转 |
 
-小程序自身的 AppID 放在 `miniprogram/project.config.json`：当前为需求方的**测试号**
-`wxbb7638eb68464449`；正式上架前替换为正式小程序的 AppID。
+小程序自身的 AppID 放在 `miniprogram/project.config.json`：当前为需求方的**正式小程序**
+`wx7e9f83d00671529f`（早期开发阶段用的是测试号 `wxbb7638eb68464449`）。
 
 **降级机制仍然保留**：若某平台的 `appId` 被清空，点击它不会报错，只会提示
 「已复制菜名，请到 App 里粘贴搜索」。这条兜底路径有独立测试守着

@@ -8,7 +8,7 @@
 
 1. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
 2. 「导入项目」→ 目录选 `D:\chisha\miniprogram`
-3. AppID 这一栏**留空 / 选「测试号」**，不要填 `touristappid`
+3. AppID 填项目自己的正式号 `wx7e9f83d00671529f`（`project.config.json` 里已写好，导入时会自动带出）；**不要填 `touristappid`**
 4. 弹出「您信任此项目的作者吗？」→ 点**「信任并运行」**
 
 > ⚠️ **`project.config.json` 里不要写 `"appid": "touristappid"`。**
@@ -129,8 +129,17 @@ D:\node\node.exe --test
 | 京东 | `wx91d27dbf599dff74` | ✅ 已配置，可跳转 |
 | 饿了么 | `wxece3a9a4c82f58c9` | ✅ 已配置，可跳转 |
 
-小程序本身的 AppID 在 `project.config.json`：当前是需求方的**测试号** `wxbb7638eb68464449`，
-正式上架前换成正式小程序的 AppID。
+小程序本身的 AppID 在 `project.config.json`：当前是需求方的**正式小程序** `wx7e9f83d00671529f`
+（早期开发阶段用的是测试号 `wxbb7638eb68464449`）。
+
+> ⚠️ **从测试号切到正式号后，下面这些要在正式号后台重新配一遍**（测试号里配的不通用）：
+>
+> 1. **request 合法域名**加 `https://apis.map.qq.com`（开发管理 → 服务器域名）
+> 2. 开通**「地理位置」接口**（开发管理 → 接口设置）
+> 3. 腾讯位置服务 key 的**「授权 APP ID」**改成 `wx7e9f83d00671529f`
+>
+> 第 1 条不配，真机上「附近美食」会报 `request 合法域名校验出错`；
+> 第 3 条不影响 WebServiceAPI 的周边搜索（它不做 AppID 绑定），但用小程序 SDK 类接口会被拒。
 
 **怎么查任意小程序的 AppID**：微信里打开该小程序 → 右上角「…」→ 点小程序名称进详情页
 → 点「更多资料」→ 里面就有 AppID。

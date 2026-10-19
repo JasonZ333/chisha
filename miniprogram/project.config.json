@@ -1,6 +1,6 @@
 {
   "description": "微信开发者工具项目配置。当前用需求方的测试号 AppID；正式上架前换成正式小程序的 AppID。",
-  "appid": "wxbb7638eb68464449",
+  "appid": "wx7e9f83d00671529f",
   "projectname": "chisha-miniprogram",
   "compileType": "miniprogram",
   "libVersion": "3.5.0",
