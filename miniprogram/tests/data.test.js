@@ -2,7 +2,7 @@
  * 数据完整性测试（小程序版）。
  *
  * 数据由 tools/sync_miniprogram_data.py 从 Flutter 版生成，
- * 这里校验它与需求一致：50 道菜、10 个档位、每档 5 道、图片齐全。
+ * 这里校验它与需求一致：64 道菜、10 个档位、10/20 元档各 12 道、其余各 5 道、图片齐全。
  */
 
 var test = require('node:test');
@@ -16,20 +16,20 @@ var tiers = dishUtil.tiers;
 
 var IMAGE_DIR = path.join(__dirname, '..', 'images', 'dishes');
 
-test('共有 50 道菜', function () {
-  assert.strictEqual(dishes.length, 50);
+test('共有 64 道菜', function () {
+  assert.strictEqual(dishes.length, 64);
 });
 
-test('菜品 id 唯一且连续（1~50）', function () {
+test('菜品 id 唯一且连续（1~64）', function () {
   var ids = dishes.map(function (d) {
     return d.id;
   });
-  assert.strictEqual(new Set(ids).size, 50, 'id 必须唯一');
+  assert.strictEqual(new Set(ids).size, 64, 'id 必须唯一');
   assert.deepStrictEqual(
     ids.slice().sort(function (a, b) {
       return a - b;
     }),
-    Array.from({ length: 50 }, function (_, i) {
+    Array.from({ length: 64 }, function (_, i) {
       return i + 1;
     })
   );
@@ -64,11 +64,19 @@ test('共有 10 个档位，且完整覆盖 0~100 元不重不漏', function () 
   }
 });
 
-test('每个档位正好 5 道菜', function () {
+test('各档位菜品数符合要求（10/20 元档各 12 道，其余各 5 道）', function () {
+  // 《增加功能》要求把 10 元档与 20 元档各增加到 12 道（原 5 道 + 新增 7 道）
+  var expected = { 10: 12, 20: 12 };
   tiers.forEach(function (t) {
+    var want = expected[t.level] || 5;
     var list = dishUtil.dishesInTier(t.level);
-    assert.strictEqual(list.length, 5, t.label + ' 有 ' + list.length + ' 道菜，应为 5 道');
+    assert.strictEqual(
+      list.length,
+      want,
+      t.label + ' 有 ' + list.length + ' 道菜，应为 ' + want + ' 道'
+    );
   });
+  assert.strictEqual(dishes.length, 12 + 12 + 5 * 8, '总数应与各档之和一致');
 });
 
 test('超过 100 元的菜不显示（maxVisiblePrice = 100）', function () {
@@ -76,7 +84,8 @@ test('超过 100 元的菜不显示（maxVisiblePrice = 100）', function () {
   assert.strictEqual(dishUtil.visibleDishes().length, dishes.length);
 });
 
-test('每道菜的图片都真实存在于 miniprogram/images/dishes/', function () {
+test('缺图情况必须与「待补图」清单完全一致', function () {
+  var pending = require('../data/pending_images.js');
   var missing = dishes
     .filter(function (d) {
       return !fs.existsSync(path.join(IMAGE_DIR, d.image));
@@ -84,7 +93,12 @@ test('每道菜的图片都真实存在于 miniprogram/images/dishes/', function
     .map(function (d) {
       return d.image;
     });
-  assert.deepStrictEqual(missing, [], '以下图片缺失：' + missing.join(', '));
+
+  assert.deepStrictEqual(
+    missing.slice().sort(),
+    pending.slice().sort(),
+    '实际缺图与「待补图」清单不一致。实际缺：' + (missing.join(', ') || '无')
+  );
 });
 
 test('小程序版不含"看吃播"相关字段（第 1 条：小程序版砍掉跳转吃播）', function () {

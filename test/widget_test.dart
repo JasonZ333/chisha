@@ -9,8 +9,8 @@ import 'package:chisha/services/random_picker.dart';
 
 void main() {
   group('内置菜品数据', () {
-    test('共 50 道菜', () {
-      expect(kBuiltinDishes.length, 50);
+    test('共 64 道菜', () {
+      expect(kBuiltinDishes.length, 64);
     });
 
     test('菜品编号唯一', () {
@@ -23,11 +23,15 @@ void main() {
       expect(names.length, kBuiltinDishes.length);
     });
 
-    test('每个价格档位正好 5 道菜', () {
+    test('各档位菜品数符合要求（10/20 元档各 12 道，其余各 5 道）', () {
+      // 《增加功能》要求把 10 元档与 20 元档各增加到 12 道（原 5 道 + 新增 7 道）
+      const expected = <int, int>{10: 12, 20: 12};
       for (final tier in kPriceTiers) {
+        final want = expected[tier.level] ?? 5;
         final count = kBuiltinDishes.where((d) => tier.contains(d.price)).length;
-        expect(count, 5, reason: '${tier.label} 应有 5 道菜，实际 $count 道');
+        expect(count, want, reason: '${tier.label} 应有 $want 道菜，实际 $count 道');
       }
+      expect(kBuiltinDishes.length, 12 + 12 + 5 * 8, reason: '总数应与各档之和一致');
     });
 
     test('没有超过 100 元的菜品', () {

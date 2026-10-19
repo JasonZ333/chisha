@@ -40,12 +40,16 @@ test('pickAnyDish 返回一道真实存在的菜', function () {
   }
 });
 
-test('pickAnyDish 能覆盖到全部 50 道菜（等概率、不遗漏）', function () {
+test('pickAnyDish 能覆盖到全部菜品（等概率、不遗漏）', function () {
   var seen = new Set();
   for (var i = 0; i < 20000; i++) {
     seen.add(randomUtil.pickAnyDish().id);
   }
-  assert.strictEqual(seen.size, 50, '只覆盖到 ' + seen.size + ' 道菜');
+  assert.strictEqual(
+    seen.size,
+    dishUtil.dishes.length,
+    '只覆盖到 ' + seen.size + ' 道菜，应为 ' + dishUtil.dishes.length + ' 道'
+  );
 });
 
 test('pickDishInTier 只会返回该档位内的菜', function () {
@@ -66,13 +70,18 @@ test('pickDishInTier 对不存在的档位返回 null', function () {
   assert.strictEqual(randomUtil.pickDishInTier(-1), null);
 });
 
-test('pickDishInTier 能覆盖该档位的全部 5 道菜', function () {
+test('pickDishInTier 能覆盖该档位的全部菜品', function () {
   dishUtil.tiers.forEach(function (tier) {
+    var expected = dishUtil.dishesInTier(tier.level).length;
     var seen = new Set();
     for (var i = 0; i < 2000; i++) {
       seen.add(randomUtil.pickDishInTier(tier.level).id);
     }
-    assert.strictEqual(seen.size, 5, tier.label + ' 只覆盖到 ' + seen.size + ' 道');
+    assert.strictEqual(
+      seen.size,
+      expected,
+      tier.label + ' 只覆盖到 ' + seen.size + ' 道，应为 ' + expected + ' 道'
+    );
   });
 });
 
@@ -92,14 +101,18 @@ test('pickNearbyDish 返回一道真实存在的菜', function () {
   }
 });
 
-test('pickNearbyDish 与「所有价位随机」范围一致（覆盖全部 50 道菜）', function () {
+test('pickNearbyDish 与「所有价位随机」范围一致（覆盖全部菜品）', function () {
   var nearby = new Set();
   var any = new Set();
   for (var i = 0; i < 20000; i++) {
     nearby.add(randomUtil.pickNearbyDish().id);
     any.add(randomUtil.pickAnyDish().id);
   }
-  assert.strictEqual(nearby.size, 50, '附近美食只覆盖到 ' + nearby.size + ' 道菜');
+  assert.strictEqual(
+    nearby.size,
+    dishUtil.dishes.length,
+    '附近美食只覆盖到 ' + nearby.size + ' 道菜'
+  );
   assert.deepStrictEqual(
     Array.from(nearby).sort(function (a, b) {
       return a - b;
@@ -113,7 +126,10 @@ test('pickNearbyDish 与「所有价位随机」范围一致（覆盖全部 50 �
 
 test('pickNearbyDish 尊重注入的随机源', function () {
   assert.strictEqual(randomUtil.pickNearbyDish(function () { return 0; }).id, dishUtil.dishes[0].id);
-  assert.strictEqual(randomUtil.pickNearbyDish(function () { return 1; }).id, 50);
+  assert.strictEqual(
+    randomUtil.pickNearbyDish(function () { return 1; }).id,
+    dishUtil.dishes[dishUtil.dishes.length - 1].id
+  );
 });
 
 test('首页确实有「附近美食随机」按钮，且绑定了处理函数', function () {

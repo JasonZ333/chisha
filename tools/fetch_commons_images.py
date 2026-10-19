@@ -61,6 +61,22 @@ ALIASES = {
     "海鲜大咖": ["Seafood platter", "Seafood boil"],
     "龙虾意面": ["Lobster pasta", "Lobster linguine"],
     "和牛寿喜锅": ["Sukiyaki", "Wagyu sukiyaki"],
+    # ── 10 元档新增 7 道 ──────────────────────────────
+    "素菜包子": ["Vegetable steamed buns", "Steamed buns vegetable filling", "Baozi"],
+    "白粥配咸菜": ["Congee with pickles", "Rice porridge with pickles", "Chinese congee"],
+    "葱油饼": ["Cong you bing", "Spring onion pancake", "Scallion flatbread"],
+    "红糖发糕": ["Fa gao", "Steamed sponge cake", "Brown sugar cake"],
+    "凉拌黄瓜": ["Cucumber salad", "Smashed cucumber"],
+    "韭菜盒子": ["Chive pocket", "Chinese chive pancake", "Jiucai hezi"],
+    "卤鸡爪": ["Braised chicken feet", "Chicken feet"],
+    # ── 20 元档新增 7 道 ──────────────────────────────
+    "鸡蛋灌饼": ["Jidan guanbing", "Egg filled pancake", "Chinese egg flatbread"],
+    "叉烧包": ["Char siu bao", "Cha siu bao", "Steamed pork bun"],
+    "三鲜馄饨": ["Wontons in soup", "Wonton soup", "Huntun"],
+    "担担面": ["Dan dan noodles", "Dandanmian"],
+    "螺蛳粉": ["Luosifen bowl", "River snail rice noodles", "Guilin rice noodles"],
+    "牛肉粉": ["Beef rice noodles", "Beef noodle soup"],
+    "凉拌牛肚": ["Cold beef tripe", "Fuqi feipian", "Beef tripe"],
 }
 
 
@@ -141,8 +157,13 @@ def search(query):
 
 
 def search_best(dish):
-    """按 中文名 → 英文别名 → 中文名+菜 的顺序找一张图。"""
-    queries = [dish["name"]] + ALIASES.get(dish["name"], []) + [f"{dish['name']} 菜"]
+    """按 英文别名 → 中文名 → 中文名+菜 的顺序找一张图。
+
+    英文别名优先：对中餐菜名，Commons 的英文条目对版率更高；
+    直接用中文名搜有时会命中「某家店 / 某个摊」的照片，而不是菜本身
+    （实测：搜「素菜包子」返回一张包子铺的黑白照、搜「鸡蛋灌饼」返回街边摊）。
+    """
+    queries = list(ALIASES.get(dish["name"], [])) + [dish["name"], f"{dish['name']} 菜"]
     for query in queries:
         cands = search(query)
         time.sleep(SLEEP)

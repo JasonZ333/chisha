@@ -1,12 +1,15 @@
 import '../models/dish.dart';
 
-/// 内置示例菜品数据：10 个价格档位 × 每档 5 道 = 50 道。
+/// 内置示例菜品数据：10 个价格档位。
+/// 10 元档与 20 元档各 10 道，其余档位各 5 道，合计 64 道。
 ///
 /// 价格规则（见 price_tiers.dart）：
 ///   10 元档 ≤10 ｜ 20 元档 11~20 ｜ 30 元档 21~30 ｜ …… ｜ 100 元档 91~100
 ///
-/// 图片规则：图片文件名即 `imageFile`。用户用 AI 生成图片后，
-/// 按这些文件名放进「图片文件夹」，程序会自动用真实图片替换统一占位图。
+/// 分类只有两种：「主食」或「菜品」（见 PRD 第 266 行）。
+///
+/// 图片规则：图片文件名即 `imageFile`。按这些文件名放进「图片文件夹」即可替换
+/// 随包图库图；详情见 docs/图片来源.md。
 const List<Dish> kBuiltinDishes = <Dish>[
   // ── 10 元档（10 元及以下）────────────────────────────────
   Dish(id: 1, name: '茶叶蛋', price: 3, category: '菜品', imageFile: 'dish_01_chayedan.png'),
@@ -14,6 +17,13 @@ const List<Dish> kBuiltinDishes = <Dish>[
   Dish(id: 3, name: '鲜肉包子', price: 5, category: '主食', imageFile: 'dish_03_xianroubaozi.png'),
   Dish(id: 4, name: '阳春面', price: 8, category: '主食', imageFile: 'dish_04_yangchunmian.png'),
   Dish(id: 5, name: '蛋炒饭', price: 10, category: '主食', imageFile: 'dish_05_danchaofan.png'),
+  Dish(id: 51, name: '素菜包子', price: 4, category: '主食', imageFile: 'dish_51_sucaibaozi.png'),
+  Dish(id: 52, name: '白粥配咸菜', price: 4, category: '主食', imageFile: 'dish_52_baizhouxiancai.png'),
+  Dish(id: 53, name: '葱油饼', price: 6, category: '主食', imageFile: 'dish_53_congyoubing.png'),
+  Dish(id: 54, name: '华莱士9.9套餐', price: 9.9, category: '主食', imageFile: 'dish_54_hualaishi.png'),
+  Dish(id: 55, name: '三个馕', price: 10, category: '主食', imageFile: 'dish_55_sangenang.png'),
+  Dish(id: 56, name: '韭菜盒子', price: 9, category: '主食', imageFile: 'dish_56_jiucaizi.png'),
+  Dish(id: 57, name: '卤鸡爪', price: 10, category: '菜品', imageFile: 'dish_57_lujizhua.png'),
 
   // ── 20 元档（11~20 元）──────────────────────────────────
   Dish(id: 6, name: '重庆小面', price: 14, category: '主食', imageFile: 'dish_06_chongqingxiaomian.png'),
@@ -21,6 +31,13 @@ const List<Dish> kBuiltinDishes = <Dish>[
   Dish(id: 8, name: '煎饼果子', price: 11, category: '主食', imageFile: 'dish_08_jianbingguozi.png'),
   Dish(id: 9, name: '小笼包', price: 18, category: '主食', imageFile: 'dish_09_xiaolongbao.png'),
   Dish(id: 10, name: '兰州拉面', price: 16, category: '主食', imageFile: 'dish_10_lanzhoulamian.png'),
+  Dish(id: 58, name: '鸡蛋灌饼', price: 11, category: '主食', imageFile: 'dish_58_jidanguanbing.png'),
+  Dish(id: 59, name: '叉烧包', price: 12, category: '主食', imageFile: 'dish_59_chashaobao.png'),
+  Dish(id: 60, name: '三鲜馄饨', price: 15, category: '主食', imageFile: 'dish_60_sanxianhuntun.png'),
+  Dish(id: 61, name: '担担面', price: 16, category: '主食', imageFile: 'dish_61_dandanmian.png'),
+  Dish(id: 62, name: '螺蛳粉', price: 17, category: '主食', imageFile: 'dish_62_luosifen.png'),
+  Dish(id: 63, name: '牛肉粉', price: 19, category: '主食', imageFile: 'dish_63_niuroufen.png'),
+  Dish(id: 64, name: '凉拌牛肚', price: 20, category: '菜品', imageFile: 'dish_64_liangbanniudu.png'),
 
   // ── 30 元档（21~30 元）──────────────────────────────────
   Dish(id: 11, name: '番茄鸡蛋盖饭', price: 22, category: '主食', imageFile: 'dish_11_fanqiejidan.png'),

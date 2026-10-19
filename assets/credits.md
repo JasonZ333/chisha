@@ -56,6 +56,20 @@
 | 波士顿龙虾 | `dish_48_boshidunlongxia.jpg` | 用户提供 | 用户确认可商用 | 用户提供 |
 | 和牛寿喜锅 | `dish_49_heniushouxiguo.jpg` | 用户提供 | 用户确认可商用 | 用户提供 |
 | 佛跳墙 | `dish_50_fotiaoqiang.jpg` | N509FZ | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Buddha_jumps_over_the_wall_at_Jingrong_(20161203135907).jpg) |
+| 素菜包子 | `dish_51_sucaibaozi.jpg` | Capturedbyalish | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Bao_Buns.jpg) |
+| 白粥配咸菜 | `dish_52_baizhouxiancai.jpg` | User: (WT-shared) Shoestring at wts wikivoyage | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Cantonese_rice_porridge.JPG) |
+| 葱油饼 | `dish_53_congyoubing.jpg` | Infrogmation of New Orleans | CC BY 2.0 | [Commons](https://commons.wikimedia.org/wiki/File:Plate_of_scallion_pancakes.jpg) |
+| 华莱士9.9套餐 | `dish_54_hualaishi.jpg` | 用户提供 | 用户确认可商用 | 用户提供（图待补） |
+| 三个馕 | `dish_55_sangenang.jpg` | 用户提供 | 用户确认可商用 | 用户提供（图待补） |
+| 韭菜盒子 | `dish_56_jiucaizi.jpg` | Fumikas Sagisavas | CC0 | [Commons](https://commons.wikimedia.org/wiki/File:Garlic_chives_box.jpg) |
+| 卤鸡爪 | `dish_57_lujizhua.jpg` | HE YUNONG | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:%E4%B8%AD%E5%9B%BD%E5%8D%A4%E5%91%B3.jpg) |
+| 鸡蛋灌饼 | `dish_58_jidanguanbing.jpg` | Donald Trung Quoc Don (Chữ Hán: 徵國單) - Wikimedia Commons - © CC BY-SA 4.0 Intern | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Danbing_(%E8%9B%8B%E9%A4%85),_Utrecht_(2023)_01.jpg) |
+| 叉烧包 | `dish_59_chashaobao.jpg` | jasonlam | CC BY-SA 2.0 | [Commons](https://commons.wikimedia.org/wiki/File:07_Char_Siu_Bao_-_Steamed_Pork_Buns_-_East_Harbor_Seafood_Palace.jpg) |
+| 三鲜馄饨 | `dish_60_sanxianhuntun.jpg` | Grueslayer | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:FOOD_Wonton_Soup.jpg) |
+| 担担面 | `dish_61_dandanmian.jpg` | Steven G. Johnson | CC BY-SA 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:Dan-dan_noodles,_Shanghai.jpg) |
+| 螺蛳粉 | `dish_62_luosifen.jpg` | N509FZ | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Luosifen_w_egg_(20150507131810).JPG) |
+| 牛肉粉 | `dish_63_niuroufen.jpg` | Kham Tran - www.khamtran.com | CC BY 3.0 | [Commons](https://commons.wikimedia.org/wiki/File:Bun-Bo-Hue-from-Huong-Giang-2011.jpg) |
+| 凉拌牛肚 | `dish_64_liangbanniudu.jpg` | Yusun22 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Chaoshou_Fuqifeipian_2022.jpg) |
 
-共 50 张图片，其中 24 张来自 [Wikimedia Commons](https://commons.wikimedia.org/)，26 张由需求方提供。
+共 64 张图片，其中 36 张来自 [Wikimedia Commons](https://commons.wikimedia.org/)，28 张由需求方提供。
 若某张图片的许可要求署名，请保留本文件。

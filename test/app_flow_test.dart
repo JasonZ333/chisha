@@ -140,7 +140,8 @@ void main() {
 
     await repo.restoreDefaults();
     final afterRestore = await repo.loadDishes(forceReload: true);
-    expect(afterRestore.length, 50);
+    expect(afterRestore.length, kBuiltinDishes.length);
+    expect(kBuiltinDishes.length, 64, reason: '内置菜品应为 64 道（10/20 档各 10 道）');
     expect(
       afterRestore.map((d) => d.name).toList(),
       kBuiltinDishes.map((d) => d.name).toList(),
