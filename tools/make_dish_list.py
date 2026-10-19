@@ -69,8 +69,8 @@ def main():
     lines = [
         "# 菜品与图片清单",
         "",
-        f"共 **{len(dishes)} 道**菜品。图片放在 `assets/dishes/`（桌面版，900px）"
-        "与 `miniprogram/images/dishes/`（小程序版，400px），两处文件名相同。",
+        f"共 **{len(dishes)} 道**菜品。图片放在 `assets/dishes/`（原图 900px）"
+        "与 `miniprogram/images/dishes/`（小程序使用的 400px 压缩版），两处文件名相同。",
         "",
         "> 换图方式：把新图命名为下表的「图片文件名」放进上述目录即可；",
         "> 或直接把图发给助手，由 `tools/pin_commons_image.py` / 替换脚本处理。",
