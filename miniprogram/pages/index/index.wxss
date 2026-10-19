@@ -52,10 +52,15 @@
   color: #9C8A80;
 }
 
-/* ── 卡片式按钮（对应 _BigButton）───────────────── */
+/* ── 卡片式按钮 ──────────────────────────────────
+   三张卡片高度必须一致：以内容最高的「分价位随机」（标题+副标题，
+   约 152rpx）为准设一个下限高度，不足的卡片自动撑到同一高度；
+   内容用 align-items:center 垂直居中，看起来仍然居中不空。 */
 .card-btn {
   display: flex;
   align-items: center;
+  min-height: 156rpx;
+  box-sizing: border-box;
   margin-bottom: 28rpx;
   padding: 34rpx 36rpx;
   border-radius: 36rpx;

@@ -219,6 +219,26 @@ test('美食卡片里的按钮用 flex 双向居中（问题②）', function ()
   assert.ok(/class="btn btn-takeout"/.test(wxml), '「点外卖」应使用 .btn .btn-takeout');
 });
 
+test('三个按钮的高度与宽度一致（任务3）', function () {
+  // 宽度：三张卡片都挂同一个 .card-btn（block 级 flex），因此宽度天然一致
+  var cards = wxml.match(/class="card-btn[^"]*"/g) || [];
+  assert.strictEqual(cards.length, 3, '首页应正好有 3 个 .card-btn，实际 ' + cards.length);
+
+  // 高度：靠 .card-btn 上的统一下限高度实现
+  var at = wxss.indexOf('.card-btn {');
+  assert.ok(at !== -1, '找不到 .card-btn 样式');
+  var rule = wxss.slice(at, wxss.indexOf('}', at));
+  assert.ok(
+    /(min-)?height:\s*\d+rpx/.test(rule),
+    '.card-btn 应有统一的最小高度，否则带副标题的卡片会比另外两张高'
+  );
+  assert.ok(
+    /box-sizing:\s*border-box/.test(rule),
+    '.card-btn 应设 box-sizing: border-box，否则 padding/border 会把高度撑出偏差'
+  );
+  assert.ok(/align-items:\s*center/.test(rule), '卡片内容应垂直居中');
+});
+
 test('「附近美食随机」下方的小字已在两端删除（任务二）', function () {
   var gone = '随机推荐一道（与所有价位随机一致）';
   assert.strictEqual(
