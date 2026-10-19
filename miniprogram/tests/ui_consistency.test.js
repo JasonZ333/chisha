@@ -20,7 +20,7 @@ var appJson = fs.readFileSync(path.join(MP, 'app.json'), 'utf8');
 var dart = fs.readFileSync(DART, 'utf8');
 
 /** 两端必须逐字一致的文案
- *  （第一张按钮「所有价位随机 → 开始」是用户要求的**小程序端专属改动**，
+ *  （第一张按钮「所有价位随机 → 10 ~ 100元随机」是用户要求的**小程序端专属改动**，
  *    见下面单独那条用例，所以不放进这个清单）*/
 var SHARED_TEXTS = [
   '吃啥',
@@ -45,34 +45,32 @@ test('首页文案与桌面端逐字一致', function () {
   });
 });
 
-test('第一张按钮文案只有「开始」两个字，不出现任何其他文字（需求①）', function () {
+test('第一张按钮文案为「10 ~ 100元随机」，不带副标题（任务1）', function () {
   var at = wxml.indexOf('bindtap="onRandomAny"');
   assert.ok(at !== -1, '找不到第一张卡片（onRandomAny）的绑定');
 
-  var block = wxml.slice(at, at + 400);
-  assert.ok(block.indexOf('>开始<') !== -1, '第一张卡片的主标题应为「开始」');
+  var block = wxml.slice(at, at + 500);
+  assert.ok(
+    block.indexOf('>10 ~ 100元随机<') !== -1,
+    '第一张卡片的主标题应为「10 ~ 100元随机」'
+  );
   assert.strictEqual(block.indexOf('card-sub'), -1, '第一张卡片不应有副标题');
   assert.strictEqual(
     block.indexOf('所有价位随机'),
     -1,
     '第一张卡片里不应再出现「所有价位随机」'
   );
-  assert.strictEqual(
-    block.indexOf('档位的全部菜品里挑一道'),
-    -1,
-    '第一张卡片里不应再出现「从 N 个档位…」那句'
-  );
-  assert.strictEqual(
-    block.indexOf('个档位'),
-    -1,
-    '第一张卡片里不应再出现"档位"相关文案'
-  );
 
-  // 整页也不该再残留旧文案
+  // 整页也不该再残留旧文案「开始」
   assert.strictEqual(
     wxml.indexOf('所有价位随机'),
     -1,
     '小程序首页整体不应再出现「所有价位随机」'
+  );
+  assert.strictEqual(
+    wxml.indexOf('>开始<'),
+    -1,
+    '小程序首页整体不应再出现「开始」按钮'
   );
   // 副标题用过的 tierCount 已无用，不应再残留在页面数据里
   assert.strictEqual(

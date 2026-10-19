@@ -14,12 +14,12 @@
     <view class="hero-sub">别纠结了，交给命运</view>
   </view>
 
-  <!-- 三个卡片式按钮：与 lib/pages/home_page.dart 的 _BigButton 结构一致 -->
-  <!-- 第一张：文案只有「开始」两个字，不带任何副标题 -->
+  <!-- 三个卡片式按钮 -->
+  <!-- 第一张：全价位随机，文案「10 ~ 100元随机」，不带副标题 -->
   <view class="card-btn card-btn-filled" hover-class="card-tap" bindtap="onRandomAny">
     <image class="card-icon" src="/images/icons/icon_shuffle_white.png" mode="aspectFit" />
     <view class="card-text">
-      <view class="card-title on-filled">开始</view>
+      <view class="card-title on-filled">10 ~ 100元随机</view>
     </view>
     <image class="card-arrow" src="/images/icons/icon_chevron_white.png" mode="aspectFit" />
   </view>
