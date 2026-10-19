@@ -167,7 +167,7 @@ def main():
         for stem in missing:
             print("   " + stem)
     else:
-        print("\n✅ 50 道菜的打包图片齐全")
+        print(f"\n✅ 全部 {len(dishes)} 道菜的打包图片齐全")
 
 
 if __name__ == "__main__":
