@@ -22,9 +22,20 @@ var indexJs = fs.readFileSync(path.join(MP, 'pages', 'index', 'index.js'), 'utf8
 var indexWxml = fs.readFileSync(path.join(MP, 'pages', 'index', 'index.wxml'), 'utf8');
 
 // ── 配置 ────────────────────────────────────────────────
-test('未配置 key 时 isConfigured() 为 false（不会盲目发请求）', function () {
-  assert.strictEqual(nearby.CONFIG.key, '', '前提：当前还没填 key');
-  assert.strictEqual(nearby.isConfigured(), false);
+test('key 配置状态与 isConfigured() 一致，且 key 不含多余空白', function () {
+  var key = nearby.CONFIG.key;
+  assert.strictEqual(
+    nearby.isConfigured(),
+    !!key,
+    'isConfigured() 应与 key 是否填写保持一致'
+  );
+  if (key) {
+    // 从控制台粘贴 key 时经常带上换行/tab（实测踩过，会让请求报 key 格式错误）
+    assert.strictEqual(key, key.trim(), 'key 前后不能有空白');
+    assert.strictEqual(key.indexOf('\n'), -1, 'key 里不能有换行');
+    assert.strictEqual(key.indexOf('\t'), -1, 'key 里不能有 tab');
+    assert.strictEqual(key.indexOf(' '), -1, 'key 里不能有空格');
+  }
 });
 
 test('页面在未配置时给出明确提示，而不是静默失败', function () {
@@ -101,6 +112,18 @@ test('parsePlaces 遇到非 0 状态码时翻译成中文错误', function () {
   assert.strictEqual(r.places.length, 0);
   assert.ok(r.error.indexOf('190') !== -1, '错误里应带上原始状态码');
   assert.ok(r.error.indexOf('无效的 key') !== -1, '应翻译成中文：' + r.error);
+});
+
+test('额度用完（121）的提示要说清原因并带上腾讯原文', function () {
+  var r = nearby.parsePlaces({ status: 121, message: '此key每日调用量已达到上限' });
+  assert.strictEqual(r.ok, false);
+  assert.strictEqual(r.places.length, 0);
+  assert.ok(r.error.indexOf('121') !== -1, '错误里应带上原始状态码：' + r.error);
+  assert.ok(r.error.indexOf('调用量') !== -1, '应说明是调用量上限：' + r.error);
+  assert.ok(
+    r.error.indexOf('此key每日调用量已达到上限') !== -1,
+    '应带上腾讯返回的原文：' + r.error
+  );
 });
 
 test('parsePlaces 对空结果与非法结构都能兜住', function () {

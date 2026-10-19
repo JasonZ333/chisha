@@ -62,3 +62,6 @@ docs/核对表_*.png
 # 微信开发者工具的个人本地配置（每位开发者不同，官方模板也忽略它）
 miniprogram/project.private.config.json
 
+# 腾讯位置服务 key（含密钥，不能入库）
+miniprogram/utils/nearby_key.js
+

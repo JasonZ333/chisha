@@ -17,9 +17,24 @@
  *           还要在微信公众平台把 https://apis.map.qq.com 加进 request 合法域名。
  */
 
+/**
+ * 腾讯位置服务 key 放在单独文件 utils/nearby_key.js 里，**该文件不入库**
+ * （见 .gitignore），避免公开仓库泄露 key 后被别人盗用每日额度。
+ * 换 key 时新建/修改 utils/nearby_key.js，内容形如：module.exports = '你的key';
+ * 读不到就直接当作未配置处理，页面会给出提示而不是盲目发请求。
+ */
+function loadKey() {
+  try {
+    var raw = require('./nearby_key.js');
+    return typeof raw === 'string' ? raw.replace(/\s+/g, '') : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 var CONFIG = {
-  // 腾讯位置服务 key（留空 = 未配置）
-  key: '',
+  // 腾讯位置服务 key（来自 utils/nearby_key.js；未提供则视为未配置）
+  key: loadKey(),
   // 搜索半径（米）
   radius: 3000,
   // 搜索关键词
@@ -36,8 +51,8 @@ var STATUS_TEXT = {
   110: '请求来源未被授权（检查 key 的域名白名单设置）',
   111: '签名校验失败',
   112: 'IP 未被授权',
-  120: '该 key 今日调用量已达上限',
-  121: '该 key 每秒调用量已达上限',
+  120: '该 key 每日调用量已达上限',
+  121: '该 key 调用量已达上限（每日额度或每秒并发超限）',
   190: '无效的 key',
   199: '该 key 未开启 WebService API 功能',
   301: 'key 格式错误',
@@ -81,6 +96,11 @@ function parsePlaces(body) {
   }
   if (body.status !== 0) {
     var text = STATUS_TEXT[body.status] || body.message || '未知错误';
+    // 额度类错误码：腾讯在不同情况下会用 120/121 表示「每日」或「每秒」超限，
+    // 直接补上它的原文，避免我们猜错（实测 121 的原文是「每日调用量已达到上限」）
+    if ((body.status === 120 || body.status === 121) && body.message) {
+      text += '（' + body.message + '）';
+    }
     return { ok: false, places: [], error: '位置服务返回 ' + body.status + '：' + text };
   }
 
