@@ -7,8 +7,6 @@ Page({
   data: {
     tierLabels: [],
     tierLevels: [],
-    // 与桌面端「从 N 个档位的全部菜品里挑一道」保持一致
-    tierCount: 0,
     dish: null,
     tierLabel: '',
     hasDish: false,
@@ -33,7 +31,6 @@ Page({
       tierLevels: dishUtil.tiers.map(function (t) {
         return t.level;
       }),
-      tierCount: dishUtil.tiers.length,
       platforms: takeout.listPlatforms(),
     });
   },

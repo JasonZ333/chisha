@@ -15,11 +15,11 @@
   </view>
 
   <!-- 三个卡片式按钮：与 lib/pages/home_page.dart 的 _BigButton 结构一致 -->
+  <!-- 第一张：文案只有「开始」两个字，不带任何副标题 -->
   <view class="card-btn card-btn-filled" hover-class="card-tap" bindtap="onRandomAny">
     <image class="card-icon" src="/images/icons/icon_shuffle_white.png" mode="aspectFit" />
     <view class="card-text">
-      <view class="card-title on-filled">所有价位随机</view>
-      <view class="card-sub on-filled">从 {{tierCount}} 个档位的全部菜品里挑一道</view>
+      <view class="card-title on-filled">开始</view>
     </view>
     <image class="card-arrow" src="/images/icons/icon_chevron_white.png" mode="aspectFit" />
   </view>

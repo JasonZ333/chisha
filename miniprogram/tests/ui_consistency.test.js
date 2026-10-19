@@ -19,12 +19,13 @@ var indexJs = fs.readFileSync(path.join(MP, 'pages', 'index', 'index.js'), 'utf8
 var appJson = fs.readFileSync(path.join(MP, 'app.json'), 'utf8');
 var dart = fs.readFileSync(DART, 'utf8');
 
-/** 两端必须逐字一致的文案 */
+/** 两端必须逐字一致的文案
+ *  （第一张按钮「所有价位随机 → 开始」是用户要求的**小程序端专属改动**，
+ *    见下面单独那条用例，所以不放进这个清单）*/
 var SHARED_TEXTS = [
   '吃啥',
   '今天吃什么？',
   '别纠结了，交给命运',
-  '所有价位随机',
   '分价位随机',
   '先选 10 ~ 100 元档位，再随机一道',
   '附近美食随机',
@@ -44,19 +45,47 @@ test('首页文案与桌面端逐字一致', function () {
   });
 });
 
-test('「所有价位随机」的副标题两端一致（含档位数量）', function () {
-  // 桌面端：从 ${kPriceTiers.length} 个档位的全部菜品里挑一道
-  assert.ok(
-    dart.indexOf('个档位的全部菜品里挑一道') !== -1,
-    '桌面端副标题变了'
+test('第一张按钮文案只有「开始」两个字，不出现任何其他文字（需求①）', function () {
+  var at = wxml.indexOf('bindtap="onRandomAny"');
+  assert.ok(at !== -1, '找不到第一张卡片（onRandomAny）的绑定');
+
+  var block = wxml.slice(at, at + 400);
+  assert.ok(block.indexOf('>开始<') !== -1, '第一张卡片的主标题应为「开始」');
+  assert.strictEqual(block.indexOf('card-sub'), -1, '第一张卡片不应有副标题');
+  assert.strictEqual(
+    block.indexOf('所有价位随机'),
+    -1,
+    '第一张卡片里不应再出现「所有价位随机」'
   );
-  assert.ok(
-    wxml.indexOf('个档位的全部菜品里挑一道') !== -1,
-    '小程序副标题缺少「个档位的全部菜品里挑一道」'
+  assert.strictEqual(
+    block.indexOf('档位的全部菜品里挑一道'),
+    -1,
+    '第一张卡片里不应再出现「从 N 个档位…」那句'
   );
-  // 小程序用 {{tierCount}} 渲染，必须由 10 个档位提供
-  assert.ok(/从 \{\{tierCount\}\} 个档位/.test(wxml), '小程序应当用 {{tierCount}} 渲染档位数量');
-  assert.ok(/tierCount:\s*dishUtil\.tiers\.length/.test(indexJs), 'tierCount 应取档位数组长度');
+  assert.strictEqual(
+    block.indexOf('个档位'),
+    -1,
+    '第一张卡片里不应再出现"档位"相关文案'
+  );
+
+  // 整页也不该再残留旧文案
+  assert.strictEqual(
+    wxml.indexOf('所有价位随机'),
+    -1,
+    '小程序首页整体不应再出现「所有价位随机」'
+  );
+  // 副标题用过的 tierCount 已无用，不应再残留在页面数据里
+  assert.strictEqual(
+    indexJs.indexOf('tierCount'),
+    -1,
+    'tierCount 已无使用处，应从页面数据中清理'
+  );
+
+  // 这一版用户明确要求「只改小程序端」，桌面端保持原样
+  assert.ok(
+    dart.indexOf('所有价位随机') !== -1,
+    '桌面端 home_page.dart 本版应保持「所有价位随机」不变'
+  );
 });
 
 test('三个按钮都是「图标 + 主标题 + 副标题 + 右箭头」的卡片结构', function () {
