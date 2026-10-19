@@ -321,8 +321,8 @@ test('「改地点」接入关键词提示，并复用同一套搜索', function
   assert.ok(/nearby\.parseSuggestions\(/.test(indexJs), '提示返回应交 parseSuggestions 解析');
   assert.ok(/onChangeLocation:/.test(indexJs), '缺少打开「改地点」的处理函数');
   assert.ok(/onPickLocation:/.test(indexJs), '缺少选中候选地点的处理函数');
-  assert.ok(indexWxml.indexOf('onChangeLocation') !== -1, '结果弹窗缺少「改地点」入口');
-  assert.ok(indexWxml.indexOf('改地点') !== -1, '结果弹窗缺少「改地点」文案');
+  assert.ok(indexWxml.indexOf('onChangeLocation') !== -1, '结果弹窗缺少「修改具体位置」入口');
+  assert.ok(indexWxml.indexOf('修改具体位置') !== -1, '结果弹窗缺少「修改具体位置」文案');
   assert.ok(indexWxml.indexOf('showLocationPicker') !== -1, '缺少地点选择弹窗');
   assert.ok(indexWxml.indexOf('onLocationInput') !== -1, '地点选择弹窗缺少输入框');
   assert.ok(indexWxml.indexOf('{{nearbyArea}}') !== -1, '结果弹窗应显示当前定位');

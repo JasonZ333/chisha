@@ -73,7 +73,7 @@
           <text class="nearby-head-text">{{nearbyBusy ? nearbyStatus : '附近美食'}}</text>
           <text class="nearby-head-sub" wx:if="{{!nearbyBusy && nearbyArea}}">当前定位：{{nearbyArea}}</text>
         </view>
-        <view class="nearby-change" wx:if="{{!nearbyBusy}}" bindtap="onChangeLocation">改地点</view>
+        <view class="nearby-change" wx:if="{{!nearbyBusy}}" bindtap="onChangeLocation">修改具体位置</view>
       </view>
 
       <view class="nearby-body" wx:if="{{nearby}}">

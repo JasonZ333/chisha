@@ -272,16 +272,21 @@
   margin-top: 4rpx;
   font-size: 22rpx;
   color: #A08878;
+  /* 地区名可能很长，超出时省略，避免把右侧按钮挤变形 */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .nearby-change {
   flex-shrink: 0;
-  margin-left: 12rpx;
-  padding: 8rpx 18rpx;
-  border-radius: 22rpx;
+  margin-left: 16rpx;
+  padding: 14rpx 28rpx;
+  border-radius: 30rpx;
   background: #F2E3D7;
   color: #8B4A2B;
-  font-size: 22rpx;
+  font-size: 28rpx;
+  font-weight: 600;
 }
 
 .nearby-body {
