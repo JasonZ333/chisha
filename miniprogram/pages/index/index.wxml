@@ -1,7 +1,6 @@
 <view class="page">
-  <!-- 顶部：标题 + 设置（对齐 Windows 端 AppBar）-->
+  <!-- 顶部：设置入口（「吃啥」标题已按需求删除，原生导航栏仍显示「吃啥」）-->
   <view class="topbar">
-    <text class="topbar-title">吃啥</text>
     <view class="topbar-gear" hover-class="tap" bindtap="onOpenSettings">
       <image class="icon-gear" src="/images/icons/icon_settings.png" mode="aspectFit" />
     </view>

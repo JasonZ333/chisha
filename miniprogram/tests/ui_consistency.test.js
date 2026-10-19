@@ -23,7 +23,6 @@ var dart = fs.readFileSync(DART, 'utf8');
  *  （第一张按钮「所有价位随机 → 10 ~ 100元随机」是用户要求的**小程序端专属改动**，
  *    见下面单独那条用例，所以不放进这个清单）*/
 var SHARED_TEXTS = [
-  '吃啥',
   '今天吃什么？',
   '别纠结了，交给命运',
   '分价位随机',
@@ -43,6 +42,20 @@ test('首页文案与桌面端逐字一致', function () {
     );
     assert.ok(wxml.indexOf(text) !== -1, '小程序 index.wxml 里缺少「' + text + '」');
   });
+});
+
+test('自定义顶栏不再显示「吃啥」，原生导航栏标题保留（任务2）', function () {
+  var at = wxml.indexOf('class="topbar"');
+  assert.ok(at !== -1, '找不到顶栏');
+  var block = wxml.slice(at, at + 200);
+  assert.strictEqual(block.indexOf('吃啥'), -1, '顶栏里不应再有「吃啥」');
+  assert.strictEqual(
+    wxml.indexOf('topbar-title'),
+    -1,
+    '顶栏标题样式类 topbar-title 应一并移除'
+  );
+  // 原生导航栏标题仍保留「吃啥」（在 app.json，而不是页面内顶栏）
+  assert.ok(appJson.indexOf('吃啥') !== -1, 'app.json 的导航栏标题「吃啥」应保留');
 });
 
 test('第一张按钮文案为「10 ~ 100元随机」，不带副标题（任务1）', function () {

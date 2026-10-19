@@ -1,17 +1,11 @@
 /* 首页样式：与 lib/pages/home_page.dart 的桌面端布局对齐 */
 
-/* ── 顶部：标题 + 设置 ────────────────────────── */
+/* ── 顶部：设置入口（标题「吃啥」已删除）────────── */
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 8rpx 0 0;
-}
-
-.topbar-title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #2B2320;
 }
 
 .topbar-gear {
