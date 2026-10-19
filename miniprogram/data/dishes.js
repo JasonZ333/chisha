@@ -1,5 +1,12 @@
-// 本文件由 tools/sync_miniprogram_data.py 自动生成，请勿手工编辑。
-// 来源：lib/data/builtin_dishes.dart
+// ★ 菜品唯一数据源 —— 手工维护（桌面端已停止维护，数据源统一到小程序侧）
+//
+// 加菜 / 改价 / 换图只改这里，然后：
+//   1. 图片按 `image` 字段的文件名放进 assets/dishes/（900px）
+//      与 miniprogram/images/dishes/（400px，小程序打包用）
+//   2. python tools/sync_miniprogram_data.py   刷新署名清单 + 校验缺图
+//   3. python tools/make_dish_list.py          刷新 docs/菜品清单.md
+//
+// 其它工具（下载图片、核对页、拼图）都通过 tools/dish_source.py 读这里。
 module.exports = [
   { id: 1, name: '茶叶蛋', price: 3, category: '菜品', image: 'dish_01_chayedan.jpg' },
   { id: 2, name: '豆浆油条', price: 6, category: '主食', image: 'dish_02_doujiangyoutiao.jpg' },

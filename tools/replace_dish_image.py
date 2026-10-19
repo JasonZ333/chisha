@@ -38,7 +38,9 @@ import time
 from PIL import Image
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DART_DISHES = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from dish_source import parse_dishes  # noqa: E402
+
 DESKTOP_DIR = os.path.join(BASE, "assets", "dishes")
 MINI_DIR = os.path.join(BASE, "miniprogram", "images", "dishes")
 BACKUP_DIR = os.path.join(BASE, "build", "image_backup")
@@ -53,18 +55,6 @@ MINI_QUALITY = 68
 ROW = re.compile(
     r"^\|\s*([^|]+?)\s*\|\s*`([^`]+)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$"
 )
-
-
-def parse_dishes():
-    text = open(DART_DISHES, encoding="utf-8").read()
-    pattern = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*[\d.]+,\s*"
-        r"category:\s*'[^']+',\s*imageFile:\s*'([^']+)'\s*\)"
-    )
-    return [
-        {"id": int(m.group(1)), "name": m.group(2), "stem": os.path.splitext(m.group(3))[0]}
-        for m in pattern.finditer(text)
-    ]
 
 
 def resolve_dish(key, dishes):

@@ -8,45 +8,15 @@
 """
 
 import os
-import re
+import sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DART = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
-TIERS_DART = os.path.join(BASE, "lib", "data", "price_tiers.dart")
 IMG_DIR = os.path.join(BASE, "assets", "dishes")
 OUT = os.path.join(BASE, "docs", "菜品清单.md")
 
-
-def parse_dishes():
-    text = open(DART, encoding="utf-8").read()
-    pat = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*([\d.]+),\s*"
-        r"category:\s*'([^']+)',\s*imageFile:\s*'([^']+)'\)"
-    )
-    out = []
-    for m in pat.finditer(text):
-        price = float(m.group(3))
-        out.append(
-            {
-                "id": int(m.group(1)),
-                "name": m.group(2),
-                "price": price,
-                "category": m.group(4),
-                "stem": os.path.splitext(m.group(5))[0],
-            }
-        )
-    return out
-
-
-def parse_tiers():
-    text = open(TIERS_DART, encoding="utf-8").read()
-    return [
-        (int(m.group(1)), float(m.group(2)), float(m.group(3)))
-        for m in re.finditer(
-            r"PriceTier\(level:\s*(\d+),\s*minPrice:\s*([\d.]+),\s*maxPrice:\s*([\d.]+)\)",
-            text,
-        )
-    ]
+# 菜品/档位数据源：小程序侧的 miniprogram/data/*.js（见 tools/dish_source.py）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from dish_source import parse_dishes, tier_ranges  # noqa: E402
 
 
 def tier_of(price, tiers):
@@ -58,7 +28,7 @@ def tier_of(price, tiers):
 
 def main():
     dishes = parse_dishes()
-    tiers = parse_tiers()
+    tiers = tier_ranges()
 
     for d in dishes:
         d["tier"] = tier_of(d["price"], tiers)

@@ -1,7 +1,7 @@
-// 本文件由 tools/sync_miniprogram_data.py 自动生成，请勿手工编辑。
-// 来源：lib/data/price_tiers.dart
+// ★ 价格档位唯一数据源 —— 手工维护
 // 10 元档 = 10 元及以下；20 元档 = 11~20；……；100 元档 = 91~100。
 // 超过 maxVisiblePrice 的菜品完全不显示。
+// 小程序端与各工具（tools/dish_source.py）都读这里。
 module.exports = {
   maxVisiblePrice: 100,
   tiers: [

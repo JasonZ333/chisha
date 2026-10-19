@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
-"""把 Flutter 版的数据同步到微信小程序版，避免手工转录出错。
+"""生成小程序侧的 `miniprogram/data/credits.js`（图片署名）。
 
-生成：
-    miniprogram/data/dishes.js   50 道菜（来自 lib/data/builtin_dishes.dart）
-    miniprogram/data/tiers.js    10 个价格档位（来自 lib/data/price_tiers.dart）
-    miniprogram/data/credits.js  图片署名（来自 docs/图片来源.md）
+## 数据源迁移说明
 
-图片字段统一写成 <文件名主干>.jpg —— 小程序里打包的就是图库下载下来的 JPEG。
+早期本脚本负责把 Flutter 侧的菜品/档位数据"同步"成小程序的 `dishes.js`、
+`tiers.js`。桌面端停止维护后，数据源已经搬到了小程序侧，那两个文件改为
+**手工维护**（见 `tools/dish_source.py`），本脚本不再生成它们。
+
+现在只剩两件事：
+1. 校验每道菜是否都有打包图片（缺图会列出来）
+2. 把 `docs/图片来源.md` 的署名数据生成 `miniprogram/data/credits.js`
+   —— CC BY-SA 等许可要求在应用内展示署名
 
 用法：
     python tools/sync_miniprogram_data.py
@@ -14,15 +18,14 @@
 
 import os
 import re
+import sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DART_DISHES = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
-DART_TIERS = os.path.join(BASE, "lib", "data", "price_tiers.dart")
-IMAGE_DIR = os.path.join(BASE, "assets", "dishes")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from dish_source import parse_dishes  # noqa: E402
 
+IMAGE_DIR = os.path.join(BASE, "assets", "dishes")
 OUT_DIR = os.path.join(BASE, "miniprogram", "data")
-OUT_DISHES = os.path.join(OUT_DIR, "dishes.js")
-OUT_TIERS = os.path.join(OUT_DIR, "tiers.js")
 OUT_CREDITS = os.path.join(OUT_DIR, "credits.js")
 CREDITS_MD = os.path.join(BASE, "docs", "图片来源.md")
 
@@ -55,51 +58,13 @@ def parse_credits():
     return out
 
 
-def parse_dishes():
-    text = open(DART_DISHES, encoding="utf-8").read()
-    pattern = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*([\d.]+),\s*"
-        r"category:\s*'([^']+)',\s*imageFile:\s*'([^']+)'\s*\)"
-    )
-    out = []
-    for m in pattern.finditer(text):
-        price = float(m.group(3))
-        out.append(
-            {
-                "id": int(m.group(1)),
-                "name": m.group(2),
-                "price": int(price) if price == int(price) else price,
-                "category": m.group(4),
-                "stem": os.path.splitext(m.group(5))[0],
-            }
-        )
-    return out
-
-
-def parse_tiers():
-    text = open(DART_TIERS, encoding="utf-8").read()
-    pattern = re.compile(
-        r"PriceTier\(level:\s*(\d+),\s*minPrice:\s*([\d.]+),\s*maxPrice:\s*([\d.]+)\)"
-    )
-    out = []
-    for m in pattern.finditer(text):
-        level, lo, hi = int(m.group(1)), float(m.group(2)), float(m.group(3))
-        out.append(
-            {
-                "level": level,
-                "min": int(lo),
-                "max": int(hi),
-                "label": f"{level} 元档",
-                "rangeLabel": "10 元及以下" if level == 10 else f"{int(lo)} ~ {int(hi)} 元",
-            }
-        )
-    mx = re.search(r"kMaxVisiblePrice\s*=\s*([\d.]+)", text)
-    return out, (int(float(mx.group(1))) if mx else 100)
+def esc(value):
+    """转义成可以安全塞进单引号字符串的内容"""
+    return str(value).replace("\\", "\\\\").replace("'", "\\'")
 
 
 def main():
     dishes = parse_dishes()
-    tiers, max_price = parse_tiers()
     os.makedirs(OUT_DIR, exist_ok=True)
 
     # 校验每道菜都有打包图片，避免小程序里出现空白
@@ -107,41 +72,11 @@ def main():
         d["stem"] for d in dishes if not os.path.exists(os.path.join(IMAGE_DIR, d["stem"] + ".jpg"))
     ]
 
-    lines = [HEADER, "// 来源：lib/data/builtin_dishes.dart\n", "module.exports = [\n"]
-    for d in dishes:
-        name = d["name"].replace("\\", "\\\\").replace("'", "\\'")
-        lines.append(
-            "  { id: %d, name: '%s', price: %s, category: '%s', image: '%s.jpg' },\n"
-            % (d["id"], name, d["price"], d["category"], d["stem"])
-        )
-    lines.append("];\n")
-    open(OUT_DISHES, "w", encoding="utf-8", newline="\n").write("".join(lines))
-
-    tlines = [
-        HEADER,
-        "// 来源：lib/data/price_tiers.dart\n",
-        "// 10 元档 = 10 元及以下；20 元档 = 11~20；……；100 元档 = 91~100。\n",
-        "// 超过 maxVisiblePrice 的菜品完全不显示。\n",
-        "module.exports = {\n",
-        "  maxVisiblePrice: %d,\n" % max_price,
-        "  tiers: [\n",
-    ]
-    for t in tiers:
-        tlines.append(
-            "    { level: %d, min: %d, max: %d, label: '%s', rangeLabel: '%s' },\n"
-            % (t["level"], t["min"], t["max"], t["label"], t["rangeLabel"])
-        )
-    tlines.append("  ],\n};\n")
-    open(OUT_TIERS, "w", encoding="utf-8", newline="\n").write("".join(tlines))
-
-    # 署名数据：供小程序内「设置 → 图片来源与署名」展示（CC BY-SA 要求署名）
+    # 署名数据：供小程序内「设置 → 图片来源与署名」展示
     credits = parse_credits()
-    clines = [HEADER, "// 来源：docs/图片来源.md\n", "module.exports = [\n"]
+    lines = [HEADER, "// 来源：docs/图片来源.md\n", "module.exports = [\n"]
     for c in credits:
-        def esc(s):
-            return str(s).replace("\\", "\\\\").replace("'", "\\'")
-
-        clines.append(
+        lines.append(
             "  { dish: '%s', file: '%s', author: '%s', license: '%s', source: '%s', kind: '%s' },\n"
             % (
                 esc(c["dish"]),
@@ -152,16 +87,12 @@ def main():
                 c["kind"],
             )
         )
-    clines.append("];\n")
-    open(OUT_CREDITS, "w", encoding="utf-8", newline="\n").write("".join(clines))
+    lines.append("];\n")
+    open(OUT_CREDITS, "w", encoding="utf-8", newline="\n").write("".join(lines))
 
     user_count = sum(1 for c in credits if c["kind"] == "user")
-
-    print(f"菜品 {len(dishes)} 道 → {OUT_DISHES}")
-    print(f"档位 {len(tiers)} 个（上限 {max_price} 元）→ {OUT_TIERS}")
-    print(
-        f"署名 {len(credits)} 条（其中用户提供 {user_count} 条）→ {OUT_CREDITS}"
-    )
+    print(f"菜品 {len(dishes)} 道（来自 miniprogram/data/dishes.js）")
+    print(f"署名 {len(credits)} 条（其中用户提供 {user_count} 条）→ {OUT_CREDITS}")
     if missing:
         print(f"\n⚠️ 以下 {len(missing)} 道菜缺少打包图片，小程序里会显示空白：")
         for stem in missing:

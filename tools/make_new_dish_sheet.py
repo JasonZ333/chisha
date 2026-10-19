@@ -12,9 +12,12 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DART = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
 IMG = os.path.join(BASE, "assets", "dishes")
 FONT_CANDIDATES = [r"C:\Windows\Fonts\msyhbd.ttc", r"C:\Windows\Fonts\msyh.ttc"]
+
+# 菜品数据源：小程序侧的 miniprogram/data/dishes.js（见 tools/dish_source.py）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from dish_source import parse_dishes  # noqa: E402
 
 COLS, TW, TH, BAR, PAD = 4, 400, 300, 92, 12
 
@@ -31,18 +34,10 @@ def load_font(size):
 
 def main():
     start = int(sys.argv[1]) if len(sys.argv) > 1 else 51
-    text = open(DART, encoding="utf-8").read()
-    pat = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*([\d.]+),\s*"
-        r"category:\s*'([^']+)',\s*imageFile:\s*'([^']+)'\)"
-    )
     dishes = []
-    for m in pat.finditer(text):
-        did = int(m.group(1))
-        if did >= start:
-            dishes.append(
-                (did, m.group(2), m.group(3), m.group(4), os.path.splitext(m.group(5))[0])
-            )
+    for d in parse_dishes():
+        if d["id"] >= start:
+            dishes.append((d["id"], d["name"], d["price"], d["category"], d["stem"]))
 
     if not dishes:
         raise SystemExit(f"没有 id >= {start} 的菜品")

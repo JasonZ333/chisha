@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """从 Wikimedia Commons 批量下载 50 道菜的真实照片，并生成署名清单。
 
-- 菜品清单从 lib/data/builtin_dishes.dart 解析（单一数据源，不重复维护）
+- 菜品清单从 miniprogram/data/dishes.js 解析（见 tools/dish_source.py）
 - 走本机代理（Clash Verge，127.0.0.1:7897），因为直连 Wikimedia 超时
 - 图片统一转成 JPEG 按 <stem>.jpg 存到 assets/dishes/
 - 署名清单是**增量合并**的：已经记录过的条目不会丢，缺记录的会重新检索补上
@@ -28,10 +28,13 @@ UA = "ChiShaApp/1.0 (https://github.com/JasonZ333/chisha; contact: zhang3330401@
 API = "https://commons.wikimedia.org/w/api.php"
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DART = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
 OUT_DIR = os.path.join(BASE, "assets", "dishes")
 CREDITS_DOC = os.path.join(BASE, "docs", "图片来源.md")
 CREDITS_ASSET = os.path.join(BASE, "assets", "credits.md")
+
+# 菜品数据源：小程序侧的 miniprogram/data/dishes.js（见 tools/dish_source.py）
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from dish_source import parse_dishes  # noqa: E402
 
 TARGET_WIDTH = 900
 JPEG_QUALITY = 82
@@ -100,18 +103,6 @@ def api_get(params, retries=3):
             print(f"      [重试 {attempt+1}/{retries}] {exc} → 等 {wait}s")
             time.sleep(wait)
     return {}
-
-
-def parse_dishes():
-    text = open(DART, encoding="utf-8").read()
-    pattern = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*[\d.]+,\s*"
-        r"category:\s*'([^']+)',\s*imageFile:\s*'([^']+)'\s*\)"
-    )
-    return [
-        {"id": int(m.group(1)), "name": m.group(2), "category": m.group(3), "image_file": m.group(4)}
-        for m in pattern.finditer(text)
-    ]
 
 
 def search(query):

@@ -18,8 +18,8 @@ from PIL import Image, ImageDraw, ImageFont
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE, "tools"))
 import fetch_commons_images as fetch  # noqa: E402
+from dish_source import parse_dishes  # noqa: E402
 
-DART_DISHES = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
 IMAGE_DIR = os.path.join(BASE, "assets", "dishes")
 
 COLS = 4
@@ -42,18 +42,6 @@ def load_font(size):
             except Exception:  # noqa: BLE001
                 continue
     return ImageFont.load_default()
-
-
-def parse_dishes():
-    text = open(DART_DISHES, encoding="utf-8").read()
-    pattern = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*[\d.]+,\s*"
-        r"category:\s*'[^']+',\s*imageFile:\s*'([^']+)'\s*\)"
-    )
-    return [
-        {"id": int(m.group(1)), "name": m.group(2), "stem": os.path.splitext(m.group(3))[0]}
-        for m in pattern.finditer(text)
-    ]
 
 
 def main():

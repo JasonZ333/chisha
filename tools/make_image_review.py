@@ -22,41 +22,12 @@ TOOLS = os.path.join(BASE, "tools")
 sys.path.insert(0, TOOLS)
 
 import fetch_commons_images as fetch  # noqa: E402  复用别名表，避免两处维护
+from dish_source import parse_dishes, tier_ranges  # noqa: E402
 
-DART_DISHES = os.path.join(BASE, "lib", "data", "builtin_dishes.dart")
-DART_TIERS = os.path.join(BASE, "lib", "data", "price_tiers.dart")
 CREDITS = os.path.join(BASE, "docs", "图片来源.md")
 OUT = os.path.join(BASE, "docs", "图片核对.html")
 
 ALIASES = fetch.ALIASES
-
-
-def parse_dishes():
-    text = open(DART_DISHES, encoding="utf-8").read()
-    pattern = re.compile(
-        r"Dish\(\s*id:\s*(\d+),\s*name:\s*'([^']+)',\s*price:\s*([\d.]+),\s*"
-        r"category:\s*'([^']+)',\s*imageFile:\s*'([^']+)'\s*\)"
-    )
-    return [
-        {
-            "id": int(m.group(1)),
-            "name": m.group(2),
-            "price": float(m.group(3)),
-            "category": m.group(4),
-            "stem": os.path.splitext(m.group(5))[0],
-        }
-        for m in pattern.finditer(text)
-    ]
-
-
-def parse_tiers():
-    text = open(DART_TIERS, encoding="utf-8").read()
-    return [
-        (int(m.group(1)), float(m.group(2)), float(m.group(3)))
-        for m in re.finditer(
-            r"PriceTier\(level:\s*(\d+),\s*minPrice:\s*([\d.]+),\s*maxPrice:\s*([\d.]+)\)", text
-        )
-    ]
 
 
 def tier_label(price, tiers):
@@ -97,7 +68,7 @@ def render_source(raw):
 
 def main():
     dishes = parse_dishes()
-    tiers = parse_tiers()
+    tiers = tier_ranges()
     credits = parse_credits()
 
     cards = []
@@ -175,7 +146,7 @@ def main():
   <h1>菜品图片与菜名核对</h1>
   <div class="hint">
     共 <b>{len(dishes)}</b> 道菜。请逐张确认「图片内容」与「菜名」是否相符。<br />
-    图片目录：<code>assets/dishes/</code>　菜名来源：<code>lib/data/builtin_dishes.dart</code>
+    图片目录：<code>assets/dishes/</code>　菜名来源：<code>miniprogram/data/dishes.js</code>
   </div>
   <div class="bar">
     <button id="focusBtn">只看重点核对（{focus_count}）</button>
