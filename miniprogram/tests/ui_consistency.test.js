@@ -187,6 +187,27 @@ test('随机结果以屏幕居中的弹窗呈现（对齐桌面端的 AlertDialo
   assert.ok(wxml.indexOf('>关闭</view>') !== -1, '弹窗里缺少「关闭」按钮');
 });
 
+test('美食卡片里的按钮用 flex 双向居中（问题②）', function () {
+  var at = wxss.indexOf('.btn {');
+  assert.ok(at !== -1, '找不到 .btn 样式');
+  var rule = wxss.slice(at, wxss.indexOf('}', at));
+
+  assert.ok(/display:\s*flex/.test(rule), '.btn 应是 flex 容器');
+  assert.ok(/align-items:\s*center/.test(rule), '.btn 应垂直居中');
+  assert.ok(/justify-content:\s*center/.test(rule), '.btn 应水平居中');
+  assert.strictEqual(
+    /line-height:\s*88rpx/.test(rule),
+    false,
+    '.btn 不应再用「line-height = height」的写法（在小程序 button 上会让文字偏下）'
+  );
+
+  // 两个按钮都存在，且都使用这套居中样式
+  assert.ok(wxml.indexOf('再随机一个') !== -1, '缺少「再随机一个」按钮');
+  assert.ok(wxml.indexOf('点外卖') !== -1, '缺少「点外卖」按钮');
+  assert.ok(/class="btn btn-ghost"/.test(wxml), '「再随机一个」应使用 .btn .btn-ghost');
+  assert.ok(/class="btn btn-takeout"/.test(wxml), '「点外卖」应使用 .btn .btn-takeout');
+});
+
 test('「附近美食随机」下方的小字已在两端删除（任务二）', function () {
   var gone = '随机推荐一道（与所有价位随机一致）';
   assert.strictEqual(
