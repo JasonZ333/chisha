@@ -46,7 +46,7 @@
   <view class="modal-wrap" wx:if="{{hasDish}}">
     <view class="modal-mask" bindtap="onCloseDish"></view>
 
-    <view class="flip-stage {{flipPhase === 'front' ? 'is-front' : 'is-back'}}">
+    <view class="flip-stage {{flipPhase === 'front' ? 'is-front' : 'is-back'}}{{noFlipAnim ? ' no-anim' : ''}}">
       <!-- 卡片背后的光：暖橙光晕 + 两圈冲击波（纯 WXSS，无依赖） -->
       <view class="fx">
         <view class="fx-glow"></view>

@@ -19,6 +19,8 @@ Page({
     hasDish: false,
     // 翻牌动效阶段：'back' = 抽签中（背面），'front' = 揭晓（正面）
     flipPhase: 'front',
+    // 重播动效时临时关掉翻转过渡，让卡片"瞬间"翻回背面（避免提前泄露新菜）
+    noFlipAnim: false,
     // 「再随机一个」沿用的档位；null = 所有价位
     rerollTier: null,
     // 点外卖：平台选择页
@@ -300,21 +302,29 @@ Page({
     var tier = dishUtil.tierOfPrice(dish.price);
     var that = this;
 
-    // 每次出结果都重放「抽签 → 翻牌 → 光爆」：先切回背面，再定时翻到正面
-    // （「再随机一个」时同样会重播）
     this.clearFlipTimer();
+
+    // 【关键】同一次 setData 里：关掉翻转过渡 + 翻回背面 + 换上新菜。
+    // 否则（过渡没关）卡片会一边从正面往背面转 600ms、一边把刚抽到的新菜
+    // 显示在正面上 —— 等于在翻转前就把结果泄露了。
+    // 关掉过渡后这一帧直接跳到背面，新菜躲在背面之后，看不见。
     this.setData({
+      noFlipAnim: true,
+      flipPhase: 'back',
       dish: dish,
       hasDish: true,
       tierLabel: tier ? tier.label : '',
       showTakeout: false,
-      flipPhase: 'back',
     });
 
-    this._flipTimer = setTimeout(function () {
-      that._flipTimer = null;
-      that.setData({ flipPhase: 'front' });
-    }, ROLL_MS);
+    // 下一帧把过渡恢复，之后切到 'front' 才会有真正的翻牌动画
+    wx.nextTick(function () {
+      that.setData({ noFlipAnim: false });
+      that._flipTimer = setTimeout(function () {
+        that._flipTimer = null;
+        that.setData({ flipPhase: 'front' });
+      }, ROLL_MS);
+    });
   },
 
   /** 清掉翻牌定时器（关弹窗 / 离开页面时调用，避免 setData 打在已销毁的页面上） */

@@ -176,6 +176,12 @@
   transform: rotateY(180deg);
 }
 
+/* 重播动效时先瞬间翻回背面（关掉过渡）。
+   不加这条的话，卡片会一边往背面转、一边把新抽到的菜显示出来 = 提前泄露结果。 */
+.flip-stage.no-anim .flip-inner {
+  transition: none;
+}
+
 .flip-face {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;

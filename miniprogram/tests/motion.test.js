@@ -238,6 +238,32 @@ test('整体节奏约 2 秒（用户要求放慢，别又改快）', function ()
   );
 });
 
+test('「再随机一个」不提前泄露结果：先瞬间翻回背面，再换新菜', function () {
+  var showAt = indexJs.indexOf('showDish: function');
+  assert.ok(showAt !== -1, '找不到 showDish');
+  var block = indexJs.slice(showAt, showAt + 1600);
+
+  // 关键：关过渡 + 翻回背面 + 换新菜必须在同一次 setData 里。
+  // 否则卡片会一边从正面往背面转（600ms）、一边把新菜显示在正面上 = 提前泄露。
+  var setData = block.match(/this\.setData\(\{[\s\S]*?\n    \}\);/);
+  assert.ok(setData, 'showDish 里应有 setData');
+  var body = setData[0];
+  assert.ok(/noFlipAnim:\s*true/.test(body), 'setData 里应先关掉翻转过渡');
+  assert.ok(/flipPhase:\s*'back'/.test(body), 'setData 里应先翻回背面');
+  assert.ok(/dish:\s*dish/.test(body), 'setData 里同时换上新菜（此时藏在背面之后）');
+
+  // 下一帧要把过渡恢复，否则「翻牌」就没有动画了
+  assert.ok(/noFlipAnim:\s*false/.test(block), '应重新打开过渡');
+  assert.ok(/wx\.nextTick/.test(block), '恢复过渡应放在下一帧（同一个 tick 里会被合并掉）');
+
+  // WXML / WXSS 两侧接线
+  assert.ok(/noFlipAnim\s*\?/.test(wxml), 'WXML 应把 noFlipAnim 绑成 class');
+  assert.ok(
+    /\.flip-stage\.no-anim\s+\.flip-inner\s*\{[^}]*transition:\s*none/.test(wxss),
+    '缺少 .flip-stage.no-anim 的 transition: none 规则'
+  );
+});
+
 test('动效只用 WXSS 实现，不引入动画库或额外资源', function () {
   assert.strictEqual(
     /lottie|f2-plugin|canvas-api/i.test(indexJs),
