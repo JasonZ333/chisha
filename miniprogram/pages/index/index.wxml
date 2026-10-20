@@ -46,7 +46,7 @@
   <view class="modal-wrap" wx:if="{{hasDish}}">
     <view class="modal-mask" bindtap="onCloseDish"></view>
 
-    <view class="flip-stage {{flipPhase === 'front' ? 'is-front' : 'is-back'}}{{noFlipAnim ? ' no-anim' : ''}}">
+    <view class="flip-stage {{flipPhase === 'front' ? 'is-front' : 'is-back'}}">
       <!-- 卡片背后的光：暖橙光晕 + 两圈冲击波（纯 WXSS，无依赖） -->
       <view class="fx">
         <view class="fx-glow"></view>
@@ -54,7 +54,10 @@
         <view class="fx-ring fx-ring-late"></view>
       </view>
 
-      <view class="flip-inner">
+      <!-- wx:for 只用来提供 key：key 变化会让卡片重新挂载，新元素从背面起步
+           （初始状态不触发过渡），保证重播动效时不会提前露出新菜 -->
+      <block wx:for="{{flipList}}" wx:key="*this">
+        <view class="flip-inner">
         <!-- 背面：抽签中 -->
         <view class="flip-face flip-back">
           <view class="flip-back-q">?</view>
@@ -78,7 +81,8 @@
             <view class="modal-close" bindtap="onCloseDish">关闭</view>
           </view>
         </view>
-      </view>
+        </view>
+      </block>
     </view>
   </view>
 

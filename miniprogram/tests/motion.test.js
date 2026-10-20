@@ -238,30 +238,54 @@ test('整体节奏约 2 秒（用户要求放慢，别又改快）', function ()
   );
 });
 
-test('「再随机一个」不提前泄露结果：先瞬间翻回背面，再换新菜', function () {
+test('「再随机一个」不提前泄露结果：靠重新挂载卡片，从背面起步', function () {
   var showAt = indexJs.indexOf('showDish: function');
   assert.ok(showAt !== -1, '找不到 showDish');
-  var block = indexJs.slice(showAt, showAt + 1600);
+  var block = indexJs.slice(showAt, showAt + 1400);
 
-  // 关键：关过渡 + 翻回背面 + 换新菜必须在同一次 setData 里。
-  // 否则卡片会一边从正面往背面转（600ms）、一边把新菜显示在正面上 = 提前泄露。
+  // 关键：翻 key + 翻回背面 + 换新菜必须在同一次 setData 里。
+  // 靠"慢慢转回背面"会让新菜在旋转过程中露出；靠"先关过渡"又有时序问题
+  // （实测有时候有效、有时候漏），所以改成重新挂载卡片。
   var setData = block.match(/this\.setData\(\{[\s\S]*?\n    \}\);/);
   assert.ok(setData, 'showDish 里应有 setData');
   var body = setData[0];
-  assert.ok(/noFlipAnim:\s*true/.test(body), 'setData 里应先关掉翻转过渡');
+  assert.ok(/flipList:\s*\[/.test(body), 'setData 里应更新 flipList（触发重新挂载）');
   assert.ok(/flipPhase:\s*'back'/.test(body), 'setData 里应先翻回背面');
   assert.ok(/dish:\s*dish/.test(body), 'setData 里同时换上新菜（此时藏在背面之后）');
 
-  // 下一帧要把过渡恢复，否则「翻牌」就没有动画了
-  assert.ok(/noFlipAnim:\s*false/.test(block), '应重新打开过渡');
-  assert.ok(/wx\.nextTick/.test(block), '恢复过渡应放在下一帧（同一个 tick 里会被合并掉）');
-
-  // WXML / WXSS 两侧接线
-  assert.ok(/noFlipAnim\s*\?/.test(wxml), 'WXML 应把 noFlipAnim 绑成 class');
-  assert.ok(
-    /\.flip-stage\.no-anim\s+\.flip-inner\s*\{[^}]*transition:\s*none/.test(wxss),
-    '缺少 .flip-stage.no-anim 的 transition: none 规则'
+  // 不应再依赖"同一帧关过渡"那套（时序不可靠）—— 只查真实用法，注释里允许提到
+  assert.strictEqual(
+    /noFlipAnim\s*:/.test(indexJs),
+    false,
+    '不应再依赖 noFlipAnim：wx.nextTick 不保证在视图刷新后执行，会导致偶发泄露'
   );
+  assert.strictEqual(/noFlipAnim\s*\?/.test(wxml), false, 'WXML 不应再绑 noFlipAnim');
+  assert.strictEqual(/\.no-anim/.test(wxss), false, 'WXSS 不应再有 no-anim 规则');
+
+  // WXML 用 wx:for + wx:key 提供"重新挂载"能力
+  assert.ok(/wx:for="\{\{flipList\}\}"/.test(wxml), 'WXML 应用 flipList 做 wx:for');
+  assert.ok(/wx:key="\*this"/.test(wxml), '需要 wx:key，key 变化才会重新挂载元素');
+  assert.ok(
+    /<block\s+wx:for/.test(wxml),
+    '重新挂载应包在 <block wx:for> 里，避免多出一层影响布局的节点'
+  );
+});
+
+test('WXML 结构配对（重新挂载用的 block 不能漏闭合）', function () {
+  var tags = wxml.match(/<\/?(view|block)\b[^>]*>/g) || [];
+  assert.ok(tags.length > 10, '标签数量异常：' + tags.length);
+
+  var depth = 0;
+  for (var i = 0; i < tags.length; i++) {
+    var tag = tags[i];
+    if (/^<\//.test(tag)) {
+      depth -= 1;
+      assert.ok(depth >= 0, '出现多余的闭合标签：' + tag);
+    } else if (!/\/>$/.test(tag)) {
+      depth += 1;
+    }
+  }
+  assert.strictEqual(depth, 0, 'view/block 标签没有配对（很可能是重新挂载的 block 漏了 </block>）');
 });
 
 test('动效只用 WXSS 实现，不引入动画库或额外资源', function () {
