@@ -13,6 +13,9 @@ var ROLL_MS = 800;
 /** 转发 / 分享时用的标题（转发给朋友与分享到朋友圈共用） */
 var SHARE_TITLE = '今天吃什么？别纠结了，交给命运';
 
+/** 转发 / 分享卡片封面：5:4，图片随代码包一起发布 */
+var SHARE_IMAGE = '/images/share_cover.png';
+
 Page({
   data: {
     tierLabels: [],
@@ -73,6 +76,7 @@ Page({
     return {
       title: SHARE_TITLE,
       path: '/pages/index/index',
+      imageUrl: SHARE_IMAGE,
     };
   },
 
@@ -81,6 +85,7 @@ Page({
     return {
       title: SHARE_TITLE,
       query: '',
+      imageUrl: SHARE_IMAGE,
     };
   },
 

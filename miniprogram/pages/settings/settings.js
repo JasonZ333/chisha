@@ -58,6 +58,7 @@ Page({
     return {
       title: '今天吃什么？别纠结了，交给命运',
       path: '/pages/index/index',
+      imageUrl: '/images/share_cover.png',
     };
   },
 
@@ -66,6 +67,7 @@ Page({
     return {
       title: '今天吃什么？别纠结了，交给命运',
       query: '',
+      imageUrl: '/images/share_cover.png',
     };
   },
 

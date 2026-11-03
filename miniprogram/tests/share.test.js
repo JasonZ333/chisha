@@ -69,6 +69,48 @@ test('设置页也实现了两个分享方法（在该页转发不会置灰）',
   );
 });
 
+test('分享卡片使用固定封面图：5:4 且随代码包发布', function () {
+  var cover = path.join(MP, 'images', 'share_cover.png');
+  assert.ok(fs.existsSync(cover), '找不到分享封面 images/share_cover.png');
+
+  // 直接从 PNG 头读宽高（IHDR 的 width/height 在偏移 16 / 20）
+  var buf = fs.readFileSync(cover);
+  assert.strictEqual(buf.slice(1, 4).toString('ascii'), 'PNG', '封面应是 PNG');
+  var w = buf.readUInt32BE(16);
+  var h = buf.readUInt32BE(20);
+  assert.strictEqual(
+    w * 4,
+    h * 5,
+    '微信分享卡的显示比例固定 5:4，封面必须是这个比例，实际 ' + w + 'x' + h
+  );
+
+  var kb = buf.length / 1024;
+  assert.ok(kb < 300, '封面图太大（' + kb.toFixed(0) + ' KB），会挤压 2MB 包体');
+});
+
+test('两个页面的转发与朋友圈分享都带上固定封面', function () {
+  assert.ok(
+    /var SHARE_IMAGE = '\/images\/share_cover\.png'/.test(indexJs),
+    '首页应有 SHARE_IMAGE 常量'
+  );
+
+  ['onShareAppMessage', 'onShareTimeline'].forEach(function (fn) {
+    var at = indexJs.indexOf(fn + ': function');
+    assert.ok(at !== -1, '首页缺少 ' + fn);
+    assert.ok(
+      /imageUrl:\s*SHARE_IMAGE/.test(indexJs.slice(at, at + 260)),
+      '首页 ' + fn + ' 应带上 imageUrl: SHARE_IMAGE'
+    );
+
+    var sat = settingsJs.indexOf(fn + ': function');
+    assert.ok(sat !== -1, '设置页缺少 ' + fn);
+    assert.ok(
+      /imageUrl:\s*'\/images\/share_cover\.png'/.test(settingsJs.slice(sat, sat + 260)),
+      '设置页 ' + fn + ' 应带上固定封面'
+    );
+  });
+});
+
 test('没有调用 hideShareMenu（会把入口整个藏掉）', function () {
   assert.strictEqual(
     /wx\.hideShareMenu/.test(indexJs + settingsJs),
