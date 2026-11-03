@@ -10,6 +10,9 @@ var nearby = require('../../utils/nearby.js');
  */
 var ROLL_MS = 800;
 
+/** 转发 / 分享时用的标题（转发给朋友与分享到朋友圈共用） */
+var SHARE_TITLE = '今天吃什么？别纠结了，交给命运';
+
 Page({
   data: {
     tierLabels: [],
@@ -53,6 +56,32 @@ Page({
       }),
       platforms: takeout.listPlatforms(),
     });
+
+    // 显式打开「转发给朋友 + 分享到朋友圈」两个菜单项。
+    // 不实现 onShareAppMessage / onShareTimeline 的话，微信会把这两个入口置灰，
+    // 显示「当前页面不可转发 / 当前页面不可分享」。
+    if (wx.showShareMenu) {
+      wx.showShareMenu({
+        withShareTicket: true,
+        menus: ['shareAppMessage', 'shareTimeline'],
+      });
+    }
+  },
+
+  /** 转发给朋友 */
+  onShareAppMessage: function () {
+    return {
+      title: SHARE_TITLE,
+      path: '/pages/index/index',
+    };
+  },
+
+  /** 分享到朋友圈（朋友圈打开的是单页模式，不依赖登录态） */
+  onShareTimeline: function () {
+    return {
+      title: SHARE_TITLE,
+      query: '',
+    };
   },
 
   /** 打开设置页（对齐 Windows 端右上角的设置入口） */

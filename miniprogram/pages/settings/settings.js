@@ -44,6 +44,29 @@ Page({
       commonsCount: list.length - userCount,
       credits: list,
     });
+
+    // 与首页一致：显式打开转发 / 朋友圈分享，否则本页的菜单项会被置灰
+    if (wx.showShareMenu) {
+      wx.showShareMenu({
+        menus: ['shareAppMessage', 'shareTimeline'],
+      });
+    }
+  },
+
+  /** 转发给朋友：设置页不是主入口，引导对方回首页 */
+  onShareAppMessage: function () {
+    return {
+      title: '今天吃什么？别纠结了，交给命运',
+      path: '/pages/index/index',
+    };
+  },
+
+  /** 分享到朋友圈 */
+  onShareTimeline: function () {
+    return {
+      title: '今天吃什么？别纠结了，交给命运',
+      query: '',
+    };
   },
 
   onShowAbout: function () {
